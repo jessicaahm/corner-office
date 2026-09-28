@@ -157,6 +157,9 @@ body.cap-col #scene{height:min(48vh,400px)}.cap-sum b{color:var(--text)}
 .tgl{flex:none;position:relative;width:26px;height:15px;border-radius:999px;background:var(--mint);vertical-align:middle;margin-left:4px;padding:0}
 .tgl i{position:absolute;top:2px;left:13px;width:11px;height:11px;border-radius:50%;background:#14192b;transition:left .15s}
 .tgl.is-off{background:var(--panel2);box-shadow:inset 0 0 0 1px var(--line)}.tgl.is-off i{left:2px;background:var(--muted)}
+@keyframes tglPulse{0%,100%{box-shadow:inset 0 0 0 1px var(--line),0 0 0 0 rgba(245,181,74,.7)}50%{box-shadow:inset 0 0 0 1px var(--amber),0 0 0 5px rgba(245,181,74,0)}}
+.all-off .tgl.is-off,#tierTbl.all-off .tgl.is-off{animation:tglPulse 1.6s ease-in-out infinite}.all-off .cp.off{opacity:.85}
+@media (prefers-reduced-motion:reduce){.all-off .tgl.is-off,#tierTbl.all-off .tgl.is-off{animation:none;box-shadow:inset 0 0 0 1px var(--amber)}}
 .cp.off{opacity:.55}.cp.off .st{color:var(--muted)}.trow2.dim .tgl{opacity:1}
 .overbg{position:fixed;inset:0;z-index:8;background:rgba(6,8,16,.78);display:flex;align-items:center;justify-content:center;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
 .overbg[hidden]{display:none}
@@ -168,6 +171,25 @@ body.cap-col #scene{height:min(48vh,400px)}.cap-sum b{color:var(--text)}
 .overcard .ipo-grid{text-align:left}
 .overcard .best{font-size:13px;color:var(--muted);margin:4px 0 14px}.overcard .best b{color:var(--mint)}
 .overcard .btns{display:flex;flex-direction:column;gap:8px}
+.rulescard{width:100%;max-width:460px;max-height:100%;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.6);overflow:hidden}
+.rulescard .rh{padding:18px 18px 10px;border-bottom:1px solid var(--line)}
+.rulescard .rh .k{font-family:"Chakra Petch",sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--amber)}
+.rulescard .rh h2{margin:4px 0 6px;font-size:22px}.rulescard .rh p{margin:0;color:var(--muted);font-size:14px}
+.rulescard .rb{flex:1;overflow:auto;padding:4px 18px 12px;-webkit-overflow-scrolling:touch}
+.rulescard details{border-bottom:1px solid var(--line)}.rulescard details:last-child{border-bottom:0}
+.rulescard summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 0;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:15px}
+.rulescard summary::-webkit-details-marker{display:none}
+.rulescard summary .ic{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:15px;background:var(--panel2)}
+.rulescard summary .ch{margin-left:auto;color:var(--muted);transition:transform .15s}.rulescard details[open] summary .ch{transform:rotate(90deg)}
+.rulescard ul{margin:0 0 12px;padding:0 0 0 18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted);line-height:1.45}
+.rulescard ul b{color:var(--text)}.rulescard .n{color:var(--amber);font-weight:800}
+.rulescard .stats{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}.rulescard .st{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.rulescard .st b{display:block;font-size:14px;margin-bottom:5px}.rulescard .st p{margin:5px 0 0;font-size:12.5px;color:var(--muted);line-height:1.4}
+.rulescard .fx{display:inline-block;margin:0 6px 4px 0;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800}
+.rulescard .fx.inc{background:rgba(95,211,166,.14);color:var(--mint)}.rulescard .fx.deal{background:rgba(93,143,214,.2);color:#9dbdf0}.rulescard .fx.val{background:rgba(245,181,74,.15);color:var(--amber)}
+.rulescard table{width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 10px}.rulescard th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:4px 6px 4px 0}
+.rulescard td{padding:5px 6px 5px 0;border-top:1px solid var(--line);vertical-align:top;color:var(--muted)}.rulescard td:first-child{color:var(--text);font-weight:700;white-space:nowrap}
+.rulescard .rf{padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg2)}
 .overpill{position:absolute;left:50%;transform:translateX(-50%);bottom:10px;z-index:3;white-space:nowrap;padding:8px 16px;border-radius:999px;background:var(--amber);color:#2a1d05;font-weight:800;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .overpill[hidden]{display:none}.is-over .hint{display:none}
 .helpcard{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));max-width:460px;margin:0 auto;z-index:6;background:#1f2748;border:1px solid #b18cff;border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.55);font-size:13px}
@@ -225,6 +247,7 @@ body.cap-col #scene{height:min(48vh,400px)}.cap-sum b{color:var(--text)}
   <div id="tab-office" class="list" hidden></div>
 </main>
 <div class="toast" id="toast"></div>
+<div class="overbg" id="rulesBg" hidden><div class="rulescard" id="rulesCard" role="dialog" aria-modal="true" aria-labelledby="rulesTitle"></div></div>
 <div class="overbg" id="overBg" hidden><div class="overcard" id="overCard" role="dialog" aria-modal="true" aria-labelledby="overTitle"></div></div>
 <div class="helpcard" id="helpCard" hidden role="dialog" aria-labelledby="helpTitle"></div>
 
@@ -267,9 +290,9 @@ const ITEMS=[
  {id:'plant',name:'Plant',         cost:60,   grow:1.25, max:24, desc:'+2% office income each and a touch of style.',style:0.5},
  {id:'rug',  name:'Rug',           cost:120,  grow:1.0,  max:400,desc:'Goes under your furniture. Use the inlays to give a room its own floor. Tiles of the same style join up.',style:1,
    tiers:[{name:'Persian rug',mult:1,style:0},{name:'Executive carpet',mult:3,style:1},{name:'Parquet inlay',mult:5,style:1.5},{name:'Marble inlay',mult:10,style:2.5}]},
- {id:'shelf',name:'Bookshelf',     cost:800,  grow:1.15, max:30, desc:'Shared books build culture every minute. Staff drop by to browse and swap recommendations. Put an armchair next to it for a reading nook.',style:1,
+ {id:'shelf',name:'Bookshelf',     cost:800,  grow:1.15, max:30, desc:'Adds style (+1.5 pine, +3 oak, +5 walnut) and builds culture every minute. Staff drop by to browse and swap recommendations. Put an armchair next to it for a reading nook.',style:1,
    tiers:[{name:'Pine shelf',mult:1,style:.5,cult:1,boost:.3},{name:'Oak library',mult:3,style:2,cult:1.5,boost:.4},{name:'Walnut library',mult:8,style:4,cult:2.2,boost:.5}]},
- {id:'armchair',name:'Armchair',   cost:700,  grow:1.15, max:30, desc:'Staff curl up to read and end up chatting, which builds culture. Next to a bookshelf it makes a reading nook (×1.5).',style:1,
+ {id:'armchair',name:'Armchair',   cost:700,  grow:1.15, max:30, desc:'Adds style (+1 reading chair, +2.5 club, +4 wingback). Staff curl up to read and end up chatting, which builds culture. Next to a bookshelf it makes a reading nook (×1.5).',style:1,
    tiers:[{name:'Reading chair',mult:1,style:0,cult:1,boost:.4},{name:'Club chair',mult:3,style:1.5,cult:1.4,boost:.5},{name:'Wingback',mult:7,style:3,cult:1.9,boost:.6}]},
  {id:'globe',name:'Globe bar',     cost:6000, grow:1.5,  max:6,  desc:'An antique globe that opens into a drinks cabinet.',style:3},
  {id:'trophy',name:'Trophy case',  cost:8000, grow:1.5,  max:6,  desc:'Shows off your wins. Fills up as culture and shares grow.',style:3},
@@ -317,7 +340,7 @@ function refreshStaff(){counts={};effs={};for(const e of S.staffList){counts[e.d
 function eff(d){return effs[d.id]||0}
 let S=load()||fresh();
 function newFloor(withDesks){const g={};if(withDesks)for(let i=0;i<4;i++)g[(1+i*2)+',1']='desk';return {cols:8,rows:3,grid:g,rugs:{},expansions:0}}
-function fresh(){return {cash:30,cafe:null,staffList:[],offers:[],poached:0,laidOff:0,depts:{},perks:{},floor:1,shares:0,total:0,last:Date.now(),morale:100,floors:[newFloor(true)],view:0,time:9,day:1,boost:0,log:[],endDay:30}}
+function fresh(){return {cash:30,cafe:null,staffList:[],offers:[],poached:0,laidOff:0,depts:{},perks:{},floor:1,shares:0,total:0,last:Date.now(),morale:100,floors:[newFloor(true)],view:0,time:9,day:1,boost:0,log:[],endDay:30,tierOff:[true,true,true,true],pipeDefault:1,started:false}}
 function load(){try{const s=localStorage.getItem('corner-office');const o=s?JSON.parse(s):null;if(!o)return null;
   if(o.morale===undefined)o.morale=80;
   if(!o.floors){ // migrate single-grid saves
@@ -330,7 +353,7 @@ function load(){try{const s=localStorage.getItem('corner-office');const o=s?JSON
   if(o.cafe===undefined){o.cafe=null;let had=false;for(const f of o.floors)for(const k in f.grid)if(f.grid[k]==='cafe'){delete f.grid[k];had=true}if(had||o.lunch.prog==='cafe')o.cafe=newCafe()}
   if(o.view==='cafe'&&!o.cafe)o.view=0;
   if(o.staffList)for(const e of o.staffList){if(!e.need)e.need=NEED_KEYS[Math.floor(Math.random()*NEED_KEYS.length)];if(e.raise===undefined)e.raise=0}
-  if(!o.offers)o.offers=[];if(!o.endDay){o.endDay=Math.max(30,(o.day||1)+5);if(o.endDay>30)o.graceNote=1}
+  if(!o.offers)o.offers=[];if(o.started===undefined)o.started=true;if(!o.endDay){o.endDay=Math.max(30,(o.day||1)+5);if(o.endDay>30)o.graceNote=1}
   if(!o.staffList){o.staffList=[];o.nextId=1;for(const d of DEPTS)for(let i=0;i<(o.depts[d.id]||0);i++)o.staffList.push(newEmp(o,d,20+Math.random()*60))}
   return o}catch(e){return null}}
 function save(){S.last=Date.now();try{localStorage.setItem('corner-office',JSON.stringify(S))}catch(e){}}
@@ -420,6 +443,7 @@ let lastBuzzMult=1;
 function hasExecSeat(){const m=seatAssign();return S.staffList.some(e=>e.dept==='exec'&&m.get(e.id)&&isExecDesk(m.get(e.id)))}
 const legalOK=()=>S.staffList.some(e=>e.dept==='legal'&&skillOf(e)>=1);
 const tierOff=t=>!!(S.tierOff&&S.tierOff[t]);
+const pipelineOff=()=>[0,1,2,3].every(t=>tierOff(t)&&!windOf(t));
 function liveTier(t){while(t>=0&&tierOff(t))t--;return t}
 // Pausing a tier stops NEW sales only. Clients already signed still need their work delivered while their contracts run out.
 const WIND_H=[3,6,9,18]; // game hours for existing contracts of each tier to finish
@@ -441,7 +465,7 @@ function sellTier(e){if(e.dept!=='sales')return -1;const s=skillOf(e);return s>=
 function delTier(e){const s=skillOf(e);let q=e.dept==='intern'?0:e.dept==='support'?(s>=1?1:0):e.dept==='eng'?Math.min(3,s):-1;if(q>=2&&!legalOK())q=1;return q}
 let flowCache={t:-1,v:null};
 function computeFlow(){const now=performance.now();if(flowCache.v&&now-flowCache.t<100)return flowCache.v;
-  const D=[0,0,0,0],cap=[0,0,0,0],mk=(1+eff(byId('mkt'))*0.10)*execBoost()*lastBuzzMult,sales=byId('sales');
+  const D=[0,0,0,0],cap=[0,0,0,0],mk=(1+eff(byId('mkt'))*0.10)*execBoost()*lastBuzzMult*repDealMult(),sales=byId('sales');
   if(!tierOff(0))D[0]+=FOUNDER_DEALS*mk;const C=[0,1,2,3].map(commitRate);for(let t=0;t<4;t++)D[t]+=C[t];
   for(const e of S.staffList){const d=empDept(e),m=d.stat*empMult(e)*mile(count(d));const st=liveTier(sellTier(e));if(st>=0)D[st]+=m*mk;const q=delTier(e);if(q>=0)cap[q]+=m*execBoost()}
   const left=cap.slice(),served=[0,0,0,0];for(let t=3;t>=0;t--){let need=D[t];for(let k=t;k<4&&need>0;k++){const x=Math.min(need,left[k]);left[k]-=x;need-=x}served[t]=D[t]-need}
@@ -553,6 +577,7 @@ function tapValue(){return Math.max(1,totalRate()*0.5)*tapMult()*shareMult()}
 // Reputation (0-100): how clients and investors see the company. Drifts toward a target; events knock it up or down.
 function repHit(x){if(!S.staffList.length&&x<0)return;S.rep=Math.max(0,Math.min(100,(S.rep===undefined?50:S.rep)+x));S.repFlash={x,at:performance.now()}}
 const repOf=()=>S.rep===undefined?50:S.rep;
+function repDealMult(){return window.__coBoot?0.85+0.3*repOf()/100:1} // 0 → ×0.85, 50 → ×1.0, 100 → ×1.15 deals coming in
 function repFactors(){const F=computeFlow(),bl=S.backlog||[0,0,0,0];let dv=0,sv=0,lateV=0;for(let t=0;t<4;t++){dv+=F.D[t]*TIERS[t].val;sv+=F.served[t]*TIERS[t].val;lateV+=bl[t]*TIERS[t].val}
   const rel=dv>0?Math.min(1,sv/dv)*Math.max(0,1-lateV/Math.max(dv,.01)/60):.5;
   const delivery=Math.round(40*rel);
@@ -600,7 +625,7 @@ function toast(m,kind,key){if(key&&toastSnooze[key]&&performance.now()<toastSnoo
 function setTool(t){tool=t;updateHint();updateBuild()}
 function updateHint(){
   if(onTown()){el.hint.className='hint';el.hint.textContent='';return}
-  if(!tool){el.hint.className='hint';el.hint.textContent=S.morale<30?'Morale is critical: people are quitting. Add desks, amenities or perks.':staff()>deskList().length?'Some staff have no desk. Build more in the Build tab.'
+  if(!tool){el.hint.className='hint';el.hint.textContent=pipelineOff()?'Your deal pipeline is off. Switch on a deal type above the office to start selling.':S.morale<30?'Morale is critical: people are quitting. Add desks, amenities or perks.':staff()>deskList().length?'Some staff have no desk. Build more in the Build tab.'
     :staff()===0?'You, the founder, bring in half a deal per second. Hire an intern to deliver them.'
     :bottleneck()==='sell'?'Team is idle: hire Sales to bring in more deals. Tap the office to hustle.'
     :bottleneck()==='deliver'?(isOverworked()?'Burnout! The team is overworked. Hire Interns, Support or Engineering to catch up.':'Deals are piling up: hire Interns to deliver them, or the team will burn out.')
@@ -626,16 +651,16 @@ function renderHeader(){
 const R={};
 const f0=n=>n>=1000?fmt(n).slice(1):n>=10?Math.round(n).toString():n.toFixed(1);
 function updateCapStrip(){const el2=$('#capStrip');if(!el2)return;const F=computeFlow(),bl=S.backlog||[0,0,0,0];
-  let inD=0,srvD=0,spareD=0;const cells=TIERS.map((T_,t)=>{const e=T_.effort,inn=F.D[t]/e,srv=F.served[t]/e;let sp=0;for(let k=t;k<4;k++)sp+=F.left[k];sp/=e;inD+=inn;srvD+=srv;
+  let inD=0,srvD=0,spareD=0;const allOff=pipelineOff(),cells=TIERS.map((T_,t)=>{const e=T_.effort,inn=F.D[t]/e,srv=F.served[t]/e;let sp=0;for(let k=t;k<4;k++)sp+=F.left[k];sp/=e;inD+=inn;srvD+=srv;
     const short=inn>0&&srv<inn*.9,locked=inn<=0&&F.cap.slice(t).every(c=>c<=0),scale=Math.max(inn,srv+sp,.01);
     const bar=`<span class="mb"><i style="width:${srv/scale*100}%;background:var(--mint)"></i><i style="width:${Math.max(0,inn-srv)/scale*100}%;background:var(--red)"></i><i class="sp" style="width:${sp/scale*100}%"></i></span>`;
     const off=tierOff(t),wl=off?windLeft(t):0;
-    const st=off?(wl>=.5?Math.ceil(wl)+' left':'Paused'):locked?'Locked':short?(bl[t]>.5?'Late '+Math.round(delayOf(t))+'s':'Short '+f0(inn-srv)):inn<=0?'No sales':sp>inn*.2?'Room +'+f0(sp):'On time';
+    const st=off?(wl>=.5?Math.ceil(wl)+' left':allOff?'Tap to start':'Paused'):locked?'Locked':short?(bl[t]>.5?'Late '+Math.round(delayOf(t))+'s':'Short '+f0(inn-srv)):inn<=0?'No sales':sp>inn*.2?'Room +'+f0(sp):'On time';
     return `<div class="cp${short&&(!off||wl>=.5)?' bad':''}${locked&&!off?' lock':''}${off?' off':''}"><div class="cph"><b>${T_.short}</b><button class="tgl${off?' is-off':''}" data-t="${t}" aria-pressed="${!off}" aria-label="${off?'Resume':'Pause'} ${T_.name}"><i></i></button></div><span class="nums">${inn>0?f0(inn)+' → '+f0(srv):locked?'—':'0 → room '+f0(sp)}</span>${bar}<span class="st${short?' r':''}">${st}</span></div>`});
   spareD=F.left.reduce((t,v,k)=>t+v/TIERS[k].effort,0);
   const dots=TIERS.map((T_,t)=>{const inn=F.D[t],srv=F.served[t],locked=inn<=0&&F.cap.slice(t).every(c=>c<=0),short=inn>0&&srv<inn*.9;return `<i class="dot ${locked?'l':short?'r':inn>0?'g':'m'}" title="${T_.name}"></i>`}).join('');
-  const col0=!!S.capCollapsed,bn=bottleneck(),chip=bn==='deliver'?'<span class="chip2 r">'+(col0?'Need delivery':'Need qualified delivery')+'</span>':bn==='sell'?'<span class="chip2 a">'+(col0?'Room for sales':'Room for more sales')+'</span>':'<span class="chip2 g">Balanced</span>';
-  const col=!!S.capCollapsed;el2.classList.toggle('collapsed',col);
+  const col0=!!S.capCollapsed,bn=bottleneck(),chip=pipelineOff()?'<span class="chip2 a">'+(col0?'Pipeline off':'Pipeline off: tap a switch')+'</span>':bn==='deliver'?'<span class="chip2 r">'+(col0?'Need delivery':'Need qualified delivery')+'</span>':bn==='sell'?'<span class="chip2 a">'+(col0?'Room for sales':'Room for more sales')+'</span>':'<span class="chip2 g">Balanced</span>';
+  const col=!!S.capCollapsed;el2.classList.toggle('collapsed',col);el2.classList.toggle('all-off',pipelineOff());
   const html=`<div class="cap-sum num"><span class="dots">${dots}</span><span class="sumtxt">${col?`<b>${f0(inD)}</b> → <b>${f0(srvD)}</b> deals/s`:`Deals/s: in <b>${f0(inD)}</b> → delivered <b>${f0(srvD)}</b> · spare <b>${f0(spareD)}</b>`}${S.lostClients?' · <span style="color:var(--red)">'+S.lostClients+' lost</span>':''}</span>${chip}<button class="capT" aria-expanded="${!col}" aria-label="${col?'Show':'Hide'} deal tiers">${col?'▾':'▴'}</button></div>`+(col?'':cells.join(''));
   if(el2.innerHTML!==html)el2.innerHTML=html}
 function buildHire(){
@@ -663,12 +688,12 @@ function updateHire(){
   const whoDel=['Anyone can deliver','Needs experienced Support or Engineering','Needs Mid+ Engineering and an experienced Lawyer','Needs Senior+ Engineering and an experienced Lawyer'];
   const rows=TIERS.map((T_,t)=>{const inn=F.D[t],srv=F.served[t],bl=(S.backlog||[0,0,0,0])[t],dly=delayOf(t),short=inn>0&&srv<inn*.9;
     const off=tierOff(t),wl=off?windLeft(t):0;
-    const status=off?(wl>=.5?`<span style="color:${short?'var(--red)':'var(--amber)'}">No new deals. ${Math.ceil(wl)} existing contract${Math.ceil(wl)>1?'s':''} still to deliver${short?': not enough qualified delivery, clients will walk':''}.</span>`:'<span class="lock">Paused. Sales sell smaller deals instead.</span>'):inn<=0?`<span class="lock">${why[t]||'—'}</span>`:short?`<span style="color:var(--red)">${bl>0.5?'Delay '+Math.round(dly)+'s · ':''}${whoDel[t]}</span>`:bl>0.5?`<span style="color:var(--amber)">Clearing backlog</span>`:'<span style="color:var(--mint)">On time</span>';
+    const status=off&&pipelineOff()?'<span style="color:var(--amber)">Off. Switch on to start selling.</span>':off?(wl>=.5?`<span style="color:${short?'var(--red)':'var(--amber)'}">No new deals. ${Math.ceil(wl)} existing contract${Math.ceil(wl)>1?'s':''} still to deliver${short?': not enough qualified delivery, clients will walk':''}.</span>`:'<span class="lock">Paused. Sales sell smaller deals instead.</span>'):inn<=0?`<span class="lock">${why[t]||'—'}</span>`:short?`<span style="color:var(--red)">${bl>0.5?'Delay '+Math.round(dly)+'s · ':''}${whoDel[t]}</span>`:bl>0.5?`<span style="color:var(--amber)">Clearing backlog</span>`:'<span style="color:var(--mint)">On time</span>';
     return `<div class="trow2${inn<=0||(off&&wl<.5)?' dim':''}"><span class="tn2"><b>${T_.name} <button class="tgl${off?' is-off':''}" data-t="${t}" aria-pressed="${!off}" aria-label="${off?'Resume':'Pause'} ${T_.name}"><i></i></button></b><small>×${T_.val} value per effort</small></span><span class="tv">${inn>0?f1(inn/T_.effort)+'→'+f1(srv/T_.effort)+'/s':'—'}</span><span class="ts">${status}</span></div>`}).join('');
-  const tt=$('#tierTbl');if(tt.innerHTML!==rows)tt.innerHTML=rows;
+  const tt=$('#tierTbl');if(tt.innerHTML!==rows)tt.innerHTML=rows;tt.classList.toggle('all-off',pipelineOff());
   const Din=sum(F.D),Sv=sum(F.served),pb=$('#pBar');pb.style.width=Math.min(100,Sv/Math.max(Din,.01)*100)+'%';pb.style.background=bn==='deliver'?'var(--red)':bn?'var(--amber)':'var(--mint)';
   const worst=TIERS.map((_,t)=>t).filter(t=>F.D[t]>0&&F.served[t]<F.D[t]*.9).pop();
-  $('#pTxt').innerHTML=(worst!==undefined?`<b style="color:var(--red)">${TIERS[worst].name} are piling up.</b> ${whoDel[worst]}. Clients who wait too long walk away.`
+  $('#pTxt').innerHTML=pipelineOff()?'<b style="color:var(--amber)">Your deal pipeline is switched off.</b> Nobody is selling, so nothing is earned except hustle taps. Switch on <b>Quick jobs</b> to start, then add bigger deal types once your team can deliver them.':(worst!==undefined?`<b style="color:var(--red)">${TIERS[worst].name} are piling up.</b> ${whoDel[worst]}. Clients who wait too long walk away.`
     :bn==='sell'?'Your team has spare capacity. Experienced Sales bring in bigger, more valuable deals.':'Every deal is being delivered on time.')+(S.lostClients?` <span style="color:var(--muted)">Clients lost so far: ${S.lostClients}.</span>`:'');
   {const h=S.overworkH||0,box=$('#owBox');box.hidden=h<=0.05;if(h>0.05){const burnt=h>=OVERWORK_LIMIT,over=bn==='deliver';
     $('#owTxt').innerHTML=burnt?`<b style="color:var(--red)">Burnout:</b> morale −${overworkPenalty()} until delivery catches up${over?'':' (recovering)'}. Delivery staff are unhappy.`
@@ -715,16 +740,16 @@ function buildBuild(){
     box.appendChild(r);R[it.id]=r}
 }
 function applyFinish(id){if(onTown()){toast('Switch to an office floor to design it');return}const f=F();if(finishOf(f)===id)return;const c=FINISHES[id].cost;if(S.cash<c){toast('Need '+fmt(c-S.cash)+' more');return}
-  S.cash-=c;f.finish=id;S.morale=Math.min(100,S.morale+1);logEvent('New flooring on '+floorLabel()+': '+FINISHES[id].name+'.',1);sparkleFloor();toast(FINISHES[id].name+' laid on '+floorLabel());save();renderAll()}
+  S.cash-=c;f.finish=id;S.morale=Math.min(100,S.morale+1);logEvent('New flooring on '+floorLabel()+': '+FINISHES[id].name+'.',1);sparkleFloor();{const p=styleProg();toast(FINISHES[id].name+' laid on '+floorLabel()+(p&&p.left>0?'. Style '+sf(p.have)+' / '+p.need+' for '+p.t:''))}save();renderAll()}
 function applyPaint(id){if(onTown()){toast('Switch to an office floor to design it');return}const f=F();if(paintOf(f)===id)return;const c=PAINTS[id].cost;if(S.cash<c){toast('Need '+fmt(c-S.cash)+' more');return}
-  S.cash-=c;f.paint=id;S.morale=Math.min(100,S.morale+.5);logEvent('Walls on '+floorLabel()+' painted '+PAINTS[id].name.toLowerCase()+'.',.5);sparkleFloor();toast('Walls painted '+PAINTS[id].name.toLowerCase());save();renderAll()}
+  S.cash-=c;f.paint=id;S.morale=Math.min(100,S.morale+.5);logEvent('Walls on '+floorLabel()+' painted '+PAINTS[id].name.toLowerCase()+'.',.5);sparkleFloor();{const p=styleProg();toast('Walls painted '+PAINTS[id].name.toLowerCase()+(p&&p.left>0?'. Style '+sf(p.have)+' / '+p.need+' for '+p.t:''))}save();renderAll()}
 function updateBuild(){
   if(!R.desk)return;
   {const f=F();$('#finishTxt').textContent=`The look of ${floorLabel()}: ${FINISHES[finishOf(f)].name} floor, ${PAINTS[paintOf(f)].name.toLowerCase()} walls. Nicer finishes add style, which lifts morale. Walls you build take the wall colour.`;
    document.querySelectorAll('#finSw .sw').forEach(b=>{const id=b.dataset.f,cur=finishOf(f)===id,c=FINISHES[id].cost;b.setAttribute('aria-pressed',cur);b.querySelector('span').textContent=cur?'Current':(c?fmt(c):'Free')+(FINISHES[id].style?' · style +'+FINISHES[id].style:'');b.disabled=!cur&&S.cash<c});
    document.querySelectorAll('#paintSw .sw').forEach(b=>{const id=b.dataset.p,cur=paintOf(f)===id,c=PAINTS[id].cost;b.setAttribute('aria-pressed',cur);b.querySelector('span').textContent=cur?'Current':(c?fmt(c):'Free');b.disabled=!cur&&S.cash<c})}
   const desks=deskList().length,roomDesks=deskList().filter(d=>d.room).length;
-  $('#buildTxt').textContent=`Pick an item, then tap tiles on ${floorLabel()} to place it. Walls plus a door make a private room (tinted violet); one with 1–2 desks is an executive office, for executives only (tinted gold): ${execCap()} desk(s), ${count(byId('exec'))} used. Staff take the elevator to use beds, coffee and meeting tables on other floors. Switch floors with the tabs above the office.${onCafe()?' Counters and dining tables go here; desks, walls and beds stay on office floors.':''} ${desks} desks for ${staff()} staff, ${roomDesks} in rooms. Furniture bonus ${pct(decorMult()-1)}, seating ${pct(seatingMult()-1)}, style ${Math.round(stylePoints())} points.${(()=>{const L=libraryCulture();return L.shelves+L.chairs?` Bookshelves and armchairs: culture +${(L.rate*60).toFixed(1)}/min${L.nooks?' ('+L.nooks+' reading nook'+(L.nooks>1?'s':'')+')':''}${L.raw>LIB_CAP?' (max reached)':''}.`:''})()}`;
+  $('#buildTxt').textContent=`Pick an item, then tap tiles on ${floorLabel()} to place it. Walls plus a door make a private room (tinted violet); one with 1–2 desks is an executive office, for executives only (tinted gold): ${execCap()} desk(s), ${count(byId('exec'))} used. Staff take the elevator to use beds, coffee and meeting tables on other floors. Switch floors with the tabs above the office.${onCafe()?' Counters and dining tables go here; desks, walls and beds stay on office floors.':''} ${desks} desks for ${staff()} staff, ${roomDesks} in rooms. Furniture bonus ${pct(decorMult()-1)}, seating ${pct(seatingMult()-1)}, style ${sf(stylePoints())} points (${styleN().toFixed(1)} per person; staff asking for a nicer office want 2 each, a beautiful office 4).${(()=>{const L=libraryCulture();return L.shelves+L.chairs?` Bookshelves and armchairs: culture +${(L.rate*60).toFixed(1)}/min${L.nooks?' ('+L.nooks+' reading nook'+(L.nooks>1?'s':'')+')':''}${L.raw>LIB_CAP?' (max reached)':''}.`:''})()}`;
   $('#toolRemove').className='buy '+(tool==='remove'?'danger':'ghost outline-red');
   const nx=nextExpansion(),ec=expandCost(),eb=$('#expBtn'),used=Object.keys(F().grid).length,tiles=cols()*rows();
   if(!nx){$('#expTxt').textContent=floorLabel()+' is at its maximum size: '+cols()+' × '+rows()+' tiles.';eb.disabled=true;eb.textContent='Fully expanded'}
@@ -785,7 +810,7 @@ function updateTeam(){
       <div class="tools"><button class="buy num" data-o="${i}" data-a="keep" ${S.cash>=c?'':'disabled'}><span>Counter-offer · ${fmt(c)}</span><small>adds a raise to payroll</small></button><button class="buy ghost" data-o="${i}" data-a="go"><span>Let them go</span></button></div></div>`}).join('');
   if(ol.innerHTML!==oh)ol.innerHTML=oh;
   {const rq=all.filter(e=>e.req).sort((a,b)=>a.req.until-b.req.until),oq=all.filter(e=>e.officeReq),rl=$('#reqList');
-   const rh=rq.length||oq.length?`<div class="card req"><h2>Requests (${rq.length+oq.length})</h2>${oq.length||rq.some(e=>/room/.test(e.req.t))?'<button class="linkbtn" data-help="'+(oq.length?'office':'private')+'">What counts as a '+(oq.length?'private office':'private room')+'?</button>':''}<ul class="reqs">${oq.map(e=>{const left=Math.max(0,(e.officeReq.until-now)/9);return `<li><b>${e.name}</b> <small>Executive</small> needs <b style="color:var(--red)">their own office</b><span class="hint2">Build a room with walls, a door and 1–2 desks. ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they leave (culture −15, output −15% for a day, morale −5).</span></li>`}).join('')}${rq.map(e=>{const left=Math.max(0,(e.req.until-now)/9);return `<li><b>${e.name}</b> <small>${empDept(e).name}</small> asks for <b>${e.req.t}</b><span class="hint2">${e.req.hint} ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they feel ignored.</span></li>`}).join('')}</ul></div>`:'';
+   const rh=rq.length||oq.length?`<div class="card req"><h2>Requests (${rq.length+oq.length})</h2>${oq.length||rq.some(e=>/room/.test(e.req.t))?'<button class="linkbtn" data-help="'+(oq.length?'office':'private')+'">What counts as a '+(oq.length?'private office':'private room')+'?</button>':''}<ul class="reqs">${oq.map(e=>{const left=Math.max(0,(e.officeReq.until-now)/9);return `<li><b>${e.name}</b> <small>Executive</small> needs <b style="color:var(--red)">their own office</b><span class="hint2">Build a room with walls, a door and 1–2 desks. ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they leave (culture −15, output −15% for a day, morale −5).</span></li>`}).join('')}${rq.map(e=>{const left=Math.max(0,(e.req.until-now)/9);return `<li><b>${e.name}</b> <small>${empDept(e).name}</small> asks for <b>${e.req.t}</b><span class="hint2">${e.req.need==='style'?(()=>{const lv=(REQS.style.find(r=>r.t===e.req.t)||{lvl:2}).lvl,n=Math.max(1,S.staffList.length),have=stylePoints(),need=lv*n;return `Office style <b>${sf(have)} / ${need}</b> points (${lv} per person × ${n} staff), so <b>${sf(Math.max(0,need-have))}</b> more to go. Style counts across every floor and grows with each hire. ${STYLE_GUIDE} `})():e.req.hint} ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they feel ignored.</span></li>`}).join('')}</ul></div>`:'';
    if(rl.innerHTML!==rh)rl.innerHTML=rh}
   $('#teamTxt').textContent=`${ready.length} ready for promotion. Each person has one thing they care about most; meet it and they stay happy and work a little faster, ignore it and they may quit or be poached. New hires start at 60% output and learn at a desk (about 4 minutes), or faster with onboarding training. Advanced courses (up to two) let experienced staff handle harder deals without a promotion. Promotions raise output (Mid ×1.25, Senior ×1.5, Lead ×1.8) and payroll${pr?' (now '+fmt(pr)+'/s)':''}; a Lead can move into the next department. Letting someone go costs severance and shakes the team.`;
   {const tl=all.filter(e=>!isExperienced(e)&&!e.training),tc=tl.reduce((t,e)=>t+trainCost(e),0),tb=$('#trainAll');tb.disabled=!tl.length||S.cash<Math.min(...tl.map(trainCost));tb.innerHTML=tl.length?'<span>Train all learners ('+tl.length+') · '+fmt(tc)+'</span><small>about an hour of game time, then fully experienced</small>':'<span>Nobody needs training</span>'}
@@ -857,17 +882,18 @@ function buildOffice(){
      <p class="sub num" id="shareTxt" style="margin:0 0 4px"></p><div class="bar"><i id="shareBar"></i></div>
      <button class="buy wide num" id="ipoBtn" style="margin-top:12px"></button></div>
    <div class="card"><h2>Save data</h2><p>Progress saves on this device automatically. Add this page to your Home Screen (Share → Add to Home Screen) to play it like an app.</p>
-     <button class="buy wide ghost" id="resetBtn">Delete save and start over</button></div>`;
+     <button class="buy wide ghost" id="resetBtn">Delete save and start over</button></div>
+   <div class="card"><h2>How to play</h2><p>Deals, staff, morale, culture, insurance, reputation and how your score is worked out.</p><button class="buy wide ghost" id="rulesBtn">Read the rules</button></div>`;
   $('#productName').value=P();$('#productName').addEventListener('input',e=>{S.product=e.target.value.trim()||'Deskly';topicCache.t=0;save()});
-  $('#townBtn').addEventListener('click',()=>setView('town'));
+  $('#townBtn').addEventListener('click',()=>setView('town'));$('#rulesBtn').addEventListener('click',showRules);
   $('#floorBtn').addEventListener('click',()=>{const c=FLOORS[S.floor+1];if(c===undefined||S.cash<c)return;S.cash-=c;S.floor++;S.floors.push(newFloor(false));S.view=S.floors.length-1;layout();recomputeRooms();renderFloorTabs();toast('Floor '+S.floor+' opened: a new empty floor to design');save();renderAll()});
   let armIPO=false,armReset=false;
   $('#ipoBtn').addEventListener('click',()=>{const sh=ipoShares();if(sh<=S.shares)return;
     if(!armIPO){armIPO=true;$('#ipoBtn').innerHTML='<span>Confirm IPO: everything resets</span>';setTimeout(()=>{armIPO=false;updateOffice()},3000);return}
-    const total=S.total,keep={day:S.day,time:S.time,endDay:S.endDay,rep:S.rep};S=fresh();Object.assign(S,keep);S.total=total;S.shares=sh;S.view=0;refreshStaff();layout();recomputeRooms();renderFloorTabs();toast('IPO complete. '+sh+' shares held.');save();renderAll()});
+    const total=S.total,keep={day:S.day,time:S.time,endDay:S.endDay,rep:S.rep,tierOff:(S.tierOff||[]).slice()};S=fresh();Object.assign(S,keep);S.total=total;S.shares=sh;S.view=0;refreshStaff();layout();recomputeRooms();renderFloorTabs();toast('IPO complete. '+sh+' shares held.');save();renderAll()});
   $('#resetBtn').addEventListener('click',()=>{if(!armReset){armReset=true;$('#resetBtn').textContent='Tap again to confirm deletion';$('#resetBtn').className='buy wide danger';
       setTimeout(()=>{armReset=false;$('#resetBtn').textContent='Delete save and start over';$('#resetBtn').className='buy wide ghost'},3000);return}
-    S=fresh();refreshStaff();layout();recomputeRooms();renderFloorTabs();save();renderAll();toast('New company founded')});
+    S=fresh();refreshStaff();layout();recomputeRooms();renderFloorTabs();save();renderAll();showRules()});
 }
 function updateBuzz(){const b=buzz(),L=townTopics().filter(o=>o.s).sort((a,c)=>c.w-a.w).slice(0,6);
   $('#buzzTxt').textContent=`The town thinks ${P()} is ${buzzLabel(b).toLowerCase()} (${Math.round((b+1)*50)}%). Word of mouth changes how many deals come in: ×${buzzMult().toFixed(2)}.`;
@@ -879,7 +905,7 @@ function updateOffice(){updateBuzz();
   if(c===undefined){$('#floorTxt').textContent='You own the whole building. Every department is available.';fb.disabled=true;fb.textContent='Fully expanded'}
   else{$('#floorTxt').textContent='Floor '+(S.floor+1)+' gives you a new empty floor to design and unlocks '+next+'.';fb.disabled=S.cash<c;fb.innerHTML='<span>Lease floor '+(S.floor+1)+' · '+fmt(c)+'</span>'}
   const r=repOf(),f=repFactors(),v=valuation(),col=repColor(r);
-  $('#repTxt').innerHTML=`<b style="color:${col};font-size:18px">${Math.round(r)} · ${repLabel(r)}</b> <span class="num">heading to ${f.target}</span>`;
+  $('#repTxt').innerHTML=`<b style="color:${col};font-size:18px">${Math.round(r)} · ${repLabel(r)}</b> <span class="num">heading to ${f.target}</span><br><span class="num" style="font-size:13px">Deals coming in <b style="color:${col}">×${repDealMult().toFixed(2)}</b> · company value <b style="color:${col}">×${repMult().toFixed(2)}</b></span>`;
   const rb=$('#repBarBig');rb.style.width=r+'%';rb.style.background=col;
   const row=(k,x,m)=>`<span>${k}</span><b>${x} / ${m}</b>`;
   const rg=row('Deals delivered on time',f.delivery,40)+row('Word of mouth in town',f.word,20)+row('Big clients served',f.big,12)+row('Team morale and culture',f.team,18)+row('Days without losing a client',f.track,10);
@@ -898,6 +924,69 @@ function updateRepBar(){const el2=$('#repBar');if(!el2)return;const r=repOf(),f=
   const trend=f.target>r+1?'<span class="rd up">▲</span>':f.target<r-1?'<span class="rd dn">▼</span>':'';
   const html=`<span class="rl">Reputation</span><span class="rb"><i style="width:${r}%;background:${col}"></i><span class="tg" style="left:calc(${f.target}% - 1px)"></span></span><span><b style="color:${col}">${Math.round(r)}</b> ${repLabel(r)} ${fl?`<span class="rd ${fl>0?'up':'dn'}">${fl>0?'+':'−'}${Math.abs(fl).toFixed(1)}</span>`:trend}</span><span class="rv">${S.over?'· Final value <b style="color:var(--amber)">'+fmt(S.over.value)+'</b>':`· Value <b>${fmt(v.value)}</b>${sh>S.shares&&!S.over?` <b style="color:var(--mint)">→ ${sh} share${sh>1?'s':''}</b>`:''}`}</span>`;
   if(el2.innerHTML!==html)el2.innerHTML=html}
+// ---------- rules screen ----------
+let rulesOpen=false;
+function rulesHTML(){const dm=Math.round(DAY_SECONDS/60*10)/10,runMin=Math.round(S.endDay*DAY_SECONDS/60),N=x=>`<span class="n">${x}</span>`;
+  const sec=(ic,t,body,open)=>`<details${open?' open':''}><summary><span class="ic" aria-hidden="true">${ic}</span>${t}<span class="ch" aria-hidden="true">›</span></summary>${body}</details>`;
+  return `<div class="rh"><div class="k">${S.started?'Rules':'New company'}</div><h2 id="rulesTitle">How to play</h2><p>You have ${N(S.endDay+' game days')} to build the most valuable company you can. One day (9:00 to 18:00) takes about ${N(dm+' minutes')}, so a run is roughly ${runMin} minutes.</p></div>
+  <div class="rb">
+  ${sec('🏁','Winning',`<ul><li>The game ends at <b>18:00 on day ${S.endDay}</b>. Your <b>company value</b> then is your score.</li>
+    <li>Company value = lifetime revenue + profit per second × ${N(EARN_MULT)}, then multiplied by <b>reputation</b>: ×${N('0.25')} at 0, ×${N('1.0')} at 50, ×${N('1.75')} at 100.</li>
+    <li>Your best score is kept, so every new company has a target to beat.</li>
+    <li>Taking the company public early resets the office but keeps <b>shares</b> (${N('+10%')} income each). The calendar keeps running.</li></ul>`,1)}
+  ${sec('📈','What drives deals and income',`<ul><li>Two things decide what you earn: how many <b>deals come in</b> (Sales), and how much each delivered deal <b>pays</b> (everything below multiplies it).</li></ul>
+    <div class="stats">
+    <div class="st"><b>😊 Morale</b><span class="fx inc">Income ×0.5 → ×1.25</span><p>Low morale also makes people quit.</p></div>
+    <div class="st"><b>✨ Culture</b><span class="fx inc">Income ×1.0 → ×1.25</span><p>Below 30: morale drops (up to −12) and rivals poach up to 2× as often. At 60+ it lifts morale; at 70+ fewer poaching attempts.</p></div>
+    <div class="st"><b>⭐ Reputation</b><span class="fx deal">Deals in ×0.85 → ×1.15</span><span class="fx val">Company value ×0.25 → ×1.75</span><p>Your final score depends on it.</p></div>
+    <div class="st"><b>🗣️ Word of mouth</b><span class="fx deal">Deals in ×0.8 → ×1.2</span><p>What the town says about you (Office tab).</p></div></div>
+    <ul><li><b>They feed each other.</b> Happy staff mingle and build culture; culture lifts morale; on-time delivery and a happy team raise reputation; reputation and word of mouth bring in more deals.</li>
+    <li>It works the other way too: overwork drops morale, unhappy staff quit or get poached, deals run late, clients walk and reputation falls.</li>
+    <li>Other income boosts: a desk in a room ${N('+50%')}, better desks, plants and decor, perks, the cafeteria (${N('+4–13%')}), coffee caffeine, and promotions. Marketing (${N('+10%')} each) and Executives (${N('+15%')} each) bring in more deals.</li></ul>`)}
+  ${sec('🤝','Deals',`<ul><li>The <b>deal pipeline starts switched off</b>. Switch on a deal type in the strip above the office to start selling.</li>
+    <li><b>Sales</b> bring deals in. <b>Interns, Support and Engineering</b> deliver them. You earn when a deal is delivered.</li></ul>
+    <table><tr><th>Deal</th><th>Sold by</th><th>Delivered by</th><th>Value</th></tr>
+    <tr><td>Quick jobs</td><td>Any Sales</td><td>Anyone</td><td>×1</td></tr>
+    <tr><td>Projects</td><td>Experienced Sales</td><td>Experienced Support or Engineering</td><td>×2</td></tr>
+    <tr><td>Enterprise</td><td>Senior Sales</td><td>Mid+ Engineering and an experienced Lawyer</td><td>×3</td></tr>
+    <tr><td>Strategic</td><td>Senior Sales + an Executive in a private office</td><td>Senior+ Engineering and an experienced Lawyer</td><td>×5</td></tr></table>
+    <ul><li>Deals that wait too long make <b>clients walk away</b>, which costs reputation. Bigger deals cost more.</li>
+    <li><b>Pausing</b> a deal type stops new sales only. Clients you already signed still need their work delivered: Quick jobs ${N('3 hours')}, Projects ${N('6 hours')}, Enterprise ${N('1 day')}, Strategic ${N('2 days')}. Deliver them all for ${N('+2')} reputation; losing one of them costs ${N('1.5×')} the usual hit.</li>
+    <li><b>Overwork:</b> if deals come in faster than the team delivers for ${N('2 days')}, the team burns out and morale drops until delivery catches up.</li></ul>`)}
+  ${sec('👥','Staff and careers',`<ul><li>New hires start at ${N('60%')} output and become <b>experienced</b> after about ${N('4 minutes')} at a desk (half speed without one). <b>Onboarding</b> training does it in ${N('1 game hour')}.</li>
+    <li>Only experienced staff can be <b>promoted</b>: Mid ×${N('1.25')}, Senior ×${N('1.5')}, Lead ×${N('1.8')} output, with higher pay. A Lead can move to the next department.</li>
+    <li>Leaving someone waiting for a promotion for more than a day slowly drains culture.</li>
+    <li><b>Advanced courses</b> (up to ${N('2')}) let experienced staff handle harder deals without a promotion.</li>
+    <li><b>Tap a person</b> to push them: each tap adds output (up to ${N('2.5×')}) and ${N('+5')} burnout. At ${N('100')} burnout they quit. Rest, naps and lunch bring it down.</li>
+    <li><b>Letting someone go</b> costs severance, ${N('5+')} culture (${N('10')} for an executive) and ${N('2')} reputation.</li>
+    <li>New departments unlock as you lease floors 2, 3 and 4.</li></ul>`)}
+  ${sec('😊','Morale and requests',`<ul><li>Morale sets output: ×${N('0.5')} at 0% up to ×${N('1.25')} at 100%. It comes from desks, amenities, perks, rooms, style, careers, lunch, privacy, culture and insurance.</li>
+    <li>Staff whose satisfaction falls below ${N('25%')} may quit.</li>
+    <li>Everyone has one thing they care about and will ask for it. Meet a request within ${N('1.5 days')} for a happiness boost; ignore it and culture drops ${N('2')} and they stay upset.</li>
+    <li><b>A nicer office</b> means ${N('2')} style points per person across the whole company; <b>a beautiful office</b> needs ${N('4')}. Plant +0.5, lamp +1.5, art +2, shelves up to +5, fireplace +6, floors and wall colours count per floor.</li>
+    <li>A <b>private room</b> is an area walled off from the entrance with a <b>door</b>. The building's outer walls count. 3+ desks = team room, beds = nap room.</li>
+    <li><b>Coffee</b> gives a caffeine boost for ${N('1.5 game hours')}; better machines give a bigger one.</li></ul>`)}
+  ${sec('💼','Executives',`<ul><li>An executive needs their <b>own office</b>: a private room with ${N('1–2')} desks. Without one within ${N('5 days')} they leave.</li>
+    <li>Losing an executive: culture ${N('−15')}, output ${N('−15%')} for a day, reputation ${N('−3')}.</li>
+    <li>A stylish office (decor inside it) makes them happier and less likely to be poached.</li></ul>`)}
+  ${sec('✨','Culture',`<ul><li>Culture grows when ${N('2+')} people chat at water coolers, sofas, meeting tables, bookshelves or armchairs, faster when they come from different teams, and when people lunch together.</li>
+    <li>Bookshelves and armchairs also add a little culture every minute; an armchair next to a shelf is a reading nook (${N('×1.5')}).</li>
+    <li>Culture raises output up to ×${N('1.25')}. Below ${N('30')}, morale suffers and rivals poach more often.</li></ul>`)}
+  ${sec('🛡️','Poaching and insurance',`<ul><li>Rival companies make offers to your staff. Counter-offer or lose them, along with their experience.</li>
+    <li><b>Insurance</b> lasts ${N(INS_DAYS+' game days')}. While covered, <b>nobody can be poached</b>.</li>
+    <li>Higher tiers add more morale: ${INS.map(t=>t.name+' '+N('+'+t.morale)).join(', ')}.</li></ul>`)}
+  ${sec('🍽️','Lunch and cafeteria',`<ul><li>Lunch runs ${N('12:00–13:00')}. If everyone goes out, output drops to ${N('15%')} for the hour. Meal vouchers keep ${N('22–35%')}.</li>
+    <li>A <b>cafeteria floor</b> keeps ${N('60–85%')} at lunch and, because staff stay in the office, adds ${N('+4–13%')} output <b>all day</b>. More seats and a juice bar add more.</li></ul>`)}
+  ${sec('⭐','Reputation',`<ul><li>Reputation (${N('0–100')}, starting at ${N('50')}) shows in the bar under your cash.</li>
+    <li>It rises with deals delivered on time, word of mouth in town, serving big clients, a happy team and days without losing a client.</li>
+    <li>It falls when clients walk away, when you lay people off and when executives leave.</li>
+    <li>Higher reputation brings in more deals (×${N('0.85')} to ×${N('1.15')}) and raises your company value (×${N('0.25')} to ×${N('1.75')}).</li></ul>`)}
+  </div>
+  <div class="rf"><button class="buy wide" id="rulesGo"><span>${S.started?'Back to the game':'Start my company'}</span></button></div>`}
+function showRules(){rulesOpen=true;$('#rulesCard').innerHTML=rulesHTML();$('#rulesBg').hidden=false;
+  $('#rulesGo').addEventListener('click',()=>{const first=!S.started;S.started=true;rulesOpen=false;$('#rulesBg').hidden=true;lastT=performance.now();save();
+    if(first){toast('Day 1 begins. Switch on a deal type above the office to start selling.');renderAll()}});
+  setTimeout(()=>{const b=$('#rulesGo');if(b)b.focus({preventScroll:true})},50)}
 // ---------- end of the run ----------
 const RANKS=[[1e9,'Unicorn'],[1e8,'Market leader'],[1e7,'Scale-up'],[1e6,'Rising star'],[1e5,'Local business'],[0,'Garage startup']];
 const rankOf=v=>RANKS.find(x=>v>=x[0])[1];
@@ -913,7 +1002,7 @@ function showOver(){const o=S.over;if(!o)return;const r=Math.round(o.rep),col=re
     <p class="best">${o.newBest?(o.prevBest?'<b>New best!</b> Previous best was '+fmt(o.prevBest)+'.':'<b>First run complete.</b> This is your score to beat.'):'Best so far: <b>'+fmt(o.prevBest)+'</b>.'}</p>
     <div class="btns"><button class="buy wide" id="overNew"><span>Start a new company</span></button><button class="buy wide ghost" id="overLook">Look around the office</button></div>`;
   $('#overBg').hidden=false;$('#overPill').hidden=true;document.body.classList.add('is-over');
-  $('#overNew').addEventListener('click',()=>{S=fresh();refreshStaff();layout();recomputeRooms();renderFloorTabs();$('#overBg').hidden=true;$('#overPill').hidden=true;document.body.classList.remove('is-over');save();renderAll();toast('New company founded. You have '+S.endDay+' days.')});
+  $('#overNew').addEventListener('click',()=>{S=fresh();refreshStaff();layout();recomputeRooms();renderFloorTabs();$('#overBg').hidden=true;$('#overPill').hidden=true;document.body.classList.remove('is-over');save();renderAll();showRules()});
   $('#overLook').addEventListener('click',()=>{$('#overBg').hidden=true;$('#overPill').hidden=false})}
 function renderTab(){({hire:updateHire,team:updateTeam,build:updateBuild,perks:updatePerks,office:updateOffice})[tab]();updateHint()}
 function renderAll(){renderHeader();renderTab()}
@@ -1078,7 +1167,7 @@ let elevOpenV=0;
 function simulate(dt){
   buildAgents();
   const gh=dt*9/DAY_SECONDS; // game hours elapsed
-  if(S.over)return;
+  if(S.over||rulesOpen)return;
   S.time+=gh;if(S.time>=18){if(S.day>=S.endDay){S.time=18;endGame();return}S.time=9;S.day++;lunchStarted=0;logEvent('Day '+S.day+' begins. Everyone is back at their desks.',0);
     const left=S.endDay-S.day;if(left===5||left===2)toast(left+' days until the market closes. Your company value at 18:00 on day '+S.endDay+' is your final score.','warn');else if(left===0)toast('Final day. The market closes at 18:00.','bad')}
   S.boost=Math.max(0,(S.boost||0)-dt*0.06); // breaks wear off over a couple of minutes
@@ -1673,14 +1762,14 @@ function applyTool(c,r,px,py,drag){
     if(under&&['wall','door'].includes(baseOf(under))){if(!drag)pop(px,py,'Not under a wall','var(--red)');return}
     const it=ITEMS.find(i=>i.id==='rug');if(!rg[k]&&itemCount('rug')>=itemMax(it)){pop(px,py,'Max reached','var(--red)');return}
     const c$=tierCost(it,tierOf(tool));if(S.cash<c$){pop(px,py,'Need '+fmt(c$-S.cash),'var(--red)');return}
-    S.cash-=c$;rg[k]=tool;placedAt[S.view+':R'+k]=performance.now();fxPlace('R'+k,cx,cy);pop(cx,cy-10,'-'+fmt(c$),'var(--amber)');save();renderAll();return}
+    S.cash-=c$;rg[k]=tool;placedAt[S.view+':R'+k]=performance.now();fxPlace('R'+k,cx,cy);pop(cx,cy-10,'-'+fmt(c$),'var(--amber)');styleNudge(cx,cy);save();renderAll();return}
   const it=ITEMS.find(i=>i.id===baseOf(tool)),tt=tierOf(tool),cur=F().grid[k];
   if(cur&&baseOf(cur)===it.id&&it.tiers){const ct=tierOf(cur);if(ct===tt){if(!drag)pop(px,py,'Already '+it.tiers[ct-1].name.toLowerCase(),'var(--muted)');return}
     const diff=Math.max(0,it.cost*Math.pow(it.grow,Math.max(0,itemCount(it.id)-1))*(it.tiers[tt-1].mult-it.tiers[ct-1].mult));
     if(S.cash<diff){pop(px,py,'Need '+fmt(diff-S.cash),'var(--red)');return}
     S.cash-=diff;F().grid[k]=gridId(it.id,tt);fxPlace(k,cx,cy);pop(cx,cy-10,(tt>ct?'Upgraded to ':'Swapped to ')+it.tiers[tt-1].name.toLowerCase(),'var(--amber)');
     if(tt>ct){addBoost(1);S.morale=Math.min(100,S.morale+1);logEvent('A '+it.name.toLowerCase()+' was upgraded to '+it.tiers[tt-1].name.toLowerCase()+'. Style up.',1)}
-    recomputeRooms();save();renderAll();return}
+    styleNudge(cx,cy);recomputeRooms();save();renderAll();return}
   if(cur){if(!drag)showChip(k,px,py);return}
   if(onCafe()&&['desk','wall','bed','door'].includes(it.id)){if(!drag)pop(px,py,'Not in the cafeteria','var(--red)');return}
   if(!onCafe()&&['cafe','dining','juice'].includes(it.id)){if(!drag)pop(px,py,'Cafeteria floor only','var(--red)');return}
@@ -1690,7 +1779,7 @@ function applyTool(c,r,px,py,drag){
   if((it.id==='wall'||it.id==='door')&&!onCafe()){const cnt=()=>{const ri=roomInfo[S.view];return ri?[ri.rooms.length,ri.rooms.filter(r=>r.priv).length]:[0,0]},[b1,p1]=cnt();recomputeRooms();const [b2,p2]=cnt();
     if(p2>p1){toast('Private room created: naps and focus get a boost');logEvent('A private room with a door was finished on '+floorLabel()+'.',1);S.morale=Math.min(100,S.morale+1)}
     else if(b2>b1)toast(it.id==='wall'?'Room built. Desks inside earn +50%. Add a door to make it private.':'Room built.')}
-  recomputeRooms();save();renderAll();
+  if(styleOf(F().grid[k])>0)styleNudge(cx,cy);recomputeRooms();save();renderAll();
 }
 let dragging=false,lastDragKey=null;
 const tileAt=(px,py)=>({c:Math.floor((px-OX)/T),r:Math.floor((py-OY)/T)});
@@ -1773,13 +1862,19 @@ const topGripe=e=>(e.notes||[]).filter(o=>o.v<0).sort((a,b)=>a.v-b.v)[0];
 const privBeds=()=>{let n=0;for(const ri of roomInfo)if(ri)for(const rm of ri.rooms)if(rm.priv)n+=rm.beds;return n};
 const bestCoffee=()=>tierItems('coffee').reduce((m,t)=>Math.max(m,t.sat>=15?3:t.sat>=11?2:1),0);
 const styleN=()=>stylePoints()/Math.max(1,S.staffList.length);
+const STYLE_GUIDE='Plant +0.5 · lamp +1.5 · art +2 · rugs +1 to +3.5 · shelves +1.5 to +5 · armchairs +1 to +4 · aquarium +5 · fireplace +6 · better floors +3 to +12 and wall colours +3 to +5 per floor.';
+// progress toward the style bar for the most urgent open style request
+function styleProg(){const q=S.staffList.filter(e=>e.req&&e.req.need==='style').map(e=>(REQS.style.find(r=>r.t===e.req.t)||{}).lvl).filter(Boolean);if(!q.length)return null;
+  const lvl=Math.min(...q),n=Math.max(1,S.staffList.length),have=stylePoints(),need=lvl*n;return {lvl,have,need,left:Math.max(0,need-have),t:lvl===2?'a nicer office':'a beautiful office'}}
+const sf=x=>x<100?(Math.floor(x*2)/2).toString():Math.floor(x).toString();
+function styleNudge(px,py){const p=styleProg();if(!p)return;if(p.left<=0)return;pop(px,py-30,'Style '+sf(p.have)+' / '+p.need+' for '+p.t,'#c9a6ff')}
 const deskIn=(e,kind)=>{const d=seatAssign().get(e.id);return !!d&&(kind==='priv'?privAt(d.fi,d.k)>0:d.room)};
 const REQS={
   naps:[{t:'a place to nap',ok:()=>itemCount('bed')>0,hint:'Build a nap bed on any floor.'},{t:'a private nap room',ok:()=>privBeds()>0,hint:'Put a bed in a room with a door.'}],
   coffee:[{t:'a coffee bar',ok:()=>itemCount('coffee')>0,hint:'Build a coffee bar.'},{t:'better coffee',ok:()=>bestCoffee()>=2,hint:'Upgrade a coffee bar to an Espresso bar.'},{t:'a real barista',ok:()=>bestCoffee()>=3,hint:'Upgrade a coffee bar to a Barista station.'}],
   food:[{t:'lunch at work',ok:()=>lunchMode()!=='out',hint:'Start meal vouchers or a cafeteria (Perks tab).'},{t:'a better lunch menu',ok:()=>lunchMode()==='cafe'&&lunchState().menu>=2,hint:"Upgrade the cafeteria to Chef's menu."}],
   quiet:[{t:'a desk in a room',ok:e=>deskIn(e,'room'),hint:'Wall off an area around their desk.'},{t:'a quiet team room',ok:e=>deskIn(e,'priv'),hint:'Add a door to their room. Rooms with 3+ desks are team rooms; 1–2 desk offices are for executives only.'}],
-  style:[{t:'a nicer office',ok:()=>styleN()>2,hint:'Add plants, art, rugs or better floors.'},{t:'a beautiful office',ok:()=>styleN()>4,hint:'Premium floors, wall colours, libraries, fireplaces.'}],
+  style:[{t:'a nicer office',ok:()=>styleN()>=2,lvl:2,hint:'Style is shared by the whole team: it needs 2 style points per person.'},{t:'a beautiful office',ok:()=>styleN()>=4,lvl:4,hint:'Style is shared by the whole team: it needs 4 style points per person.'}],
   career:[]};
 function nextRequest(e){if(e.dept==='exec')return null;if(!seatAssign().has(e.id))return {need:'desk',t:'a desk',hint:'Build more desks.'};
   if(e.need==='career'||canPromote(e)){if(canPromote(e)&&!transferLocked(e)&&e.readyAt!==undefined&&gt()-e.readyAt>4)return {need:'career',t:'a promotion',hint:'Promote them in the list below.',lvl:e.level,dept:e.dept}}
@@ -1883,7 +1978,7 @@ let lastT=performance.now(),acc=0;
 let quitCooldown=0;
 let xpToast=0;
 let buzzT=0,cashWarnT=5;
-function tick(now){const dt=Math.min((now-lastT)/1000,1);lastT=now;if(S.over){requestAnimationFrame(tick);return}buzzT-=dt;if(buzzT<=0){buzzT=1;lastBuzzMult=buzzMult()}pipelineTick(dt);trainingTick();S.cash=Math.max(0,S.cash-(payroll()+lunchBudget())*dt);acc+=dt;
+function tick(now){const dt=Math.min((now-lastT)/1000,1);lastT=now;if(S.over||rulesOpen){requestAnimationFrame(tick);return}buzzT-=dt;if(buzzT<=0){buzzT=1;lastBuzzMult=buzzMult()}pipelineTick(dt);trainingTick();S.cash=Math.max(0,S.cash-(payroll()+lunchBudget())*dt);acc+=dt;
   if(!isLunch()){const seat=seatAssign();let newlyExp=0;S.staffList.forEach((e,i)=>{if(e.xp<100){e.xp=Math.min(100,e.xp+dt*XP_RATE*(seat.has(e.id)?1:0.5));if(e.xp>=100)newlyExp++}});
     if(newlyExp){xpToast++;if(xpToast<=3||Math.random()<0.2)toast(S.staffList.filter(canPromote).length+' staff ready for promotion (Team tab)')}}
   refreshStaff();
@@ -1912,7 +2007,12 @@ function tick(now){const dt=Math.min((now-lastT)/1000,1);lastT=now;if(S.over){re
   cultureTick(dt);windTick();repTick(dt);
   renderHeader();if(acc>0.25){acc=0;renderTab();updateCapStrip();updateRepBar()}requestAnimationFrame(tick)}
 requestAnimationFrame(tick);
-if(S.over){showOver();updateRepBar()}else if(S.day===1&&S.time<9.2&&!S.staffList.length&&!S.shares)setTimeout(()=>toast('You have '+S.endDay+' days to build the most valuable company you can.'),900);else if(S.graceNote){delete S.graceNote;setTimeout(()=>toast('New rule: the game now ends after day '+S.endDay+'. Your company value then is your final score.','warn'),1200)}
+if(!S.over&&S.pipeDefault!==1){S.pipeDefault=1;if(!S.tierOff)S.tierOff=[false,false,false,false];if(!S.wind)S.wind=[null,null,null,null];
+  const F0=computeFlow();let owed=0;for(let t=0;t<4;t++){if(S.tierOff[t])continue;const before=F0.D[t];S.tierOff[t]=true;flowCache.t=-1;
+    if(before>0.001||((S.backlog||[])[t]||0)>0.5){S.wind[t]={r0:before,start:gtNow(),dur:WIND_H[t],lost:0,total:0};S.wind[t].total=Math.max(1,Math.round(windLeft(t)));owed+=S.wind[t].total}}
+  flowCache.t=-1;logEvent('Deal pipeline switched off. Switch a deal type on to sell again.',0);save();updateCapStrip();renderTab();
+  setTimeout(()=>toast('Your deal pipeline is now off by default.'+(owed?' Existing clients still get their work delivered.':'')+' Switch on a deal type above the office to sell again.','warn'),1000)}
+if(S.over){showOver();updateRepBar()}else if(!S.started)showRules();else if(S.graceNote){delete S.graceNote;setTimeout(()=>toast('New rule: the game now ends after day '+S.endDay+'. Your company value then is your final score.','warn'),1200)}
 setInterval(save,5000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else lastT=performance.now()});
 renderAll();
