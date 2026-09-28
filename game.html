@@ -266,12 +266,12 @@ body.cap-col #scene{height:min(48vh,400px)}.cap-sum b{color:var(--text)}
 'use strict';
 // role: sell = brings deals in, deliver = completes deals, value = raises $ per deal, boost = multiplies both sides
 const DEPTS=[
- {id:'intern', name:'Interns',      abbr:'IN', cost:15,     role:'deliver', stat:1,    floor:1, col:'#c9a27a', desc:'Delivers quick jobs only, however experienced. Cheap hands.'},
- {id:'sales',  name:'Sales',        abbr:'SA', cost:100,    role:'sell',    stat:1.5,  floor:1, col:'#5d8fd6', desc:'New Sales sell quick jobs. Experienced Sales sell Projects; Seniors sell Enterprise contracts, or Strategic partnerships once you have an Executive.'},
- {id:'support',name:'Support',      abbr:'SU', cost:900,    role:'deliver', stat:6,    floor:2, col:'#6fb35e', desc:'Delivers quick jobs; once experienced, Projects too. +2% deal value each.'},
+ {id:'intern', name:'Interns',      abbr:'IN', cost:15,     role:'deliver', stat:1,    floor:1, col:'#c9a27a', desc:'Delivers quick jobs only. Cheap hands. A Lead intern can move up to Support.'},
+ {id:'sales',  name:'Sales',        abbr:'SA', cost:100,    role:'sell',    stat:1.5,  floor:1, col:'#5d8fd6', desc:'Promotions unlock bigger deals: Junior sells quick jobs, Mid Projects, Senior Enterprise, Lead Strategic (once an Executive has a private office).'},
+ {id:'support',name:'Support',      abbr:'SU', cost:900,    role:'deliver', stat:6,    floor:2, col:'#6fb35e', desc:'Delivers Projects (and quick jobs). +2% deal value each. A Lead can move up to Engineering.'},
  {id:'mkt',    name:'Marketing',    abbr:'MK', cost:6500,   role:'demand',  stat:0.10, floor:2, col:'#d66aa0', desc:'+10% to what Sales brings in, each. Walk-in clients show up more often.'},
- {id:'eng',    name:'Engineering',  abbr:'EN', cost:48000,  role:'deliver', stat:40,   floor:3, col:'#7d7fe0', desc:'Experienced engineers deliver Projects, Mid+ Enterprise, Senior+ Strategic (big deals need an experienced Lawyer).'},
- {id:'legal',  name:'Legal',        abbr:'LG', cost:380000, role:'value',   stat:0.12, floor:3, col:'#a98ad6', desc:'+12% deal value each. One experienced lawyer unlocks delivery of Enterprise and Strategic deals.'},
+ {id:'eng',    name:'Engineering',  abbr:'EN', cost:48000,  role:'deliver', stat:40,   floor:3, col:'#7d7fe0', desc:'Delivers Enterprise contracts. Senior+ engineers also deliver Strategic partnerships once an Executive has a private office.'},
+ {id:'legal',  name:'Legal',        abbr:'LG', cost:380000, role:'value',   stat:0.12, floor:3, col:'#a98ad6', desc:'+12% deal value each.'},
  {id:'finance',name:'Finance',      abbr:'FI', cost:3.2e6,  role:'value',   stat:0.08, floor:4, col:'#4fb8b0', desc:'+8% deal value each and 1% off all hiring each (up to 40%).'},
  {id:'exec',   name:'Executives',   abbr:'EX', cost:2.8e7,  role:'boost',   stat:0.15, floor:4, col:'#e0b04a', desc:'+15% to both deals coming in and deals delivered, each. Hiring one needs a free private office (walls, a door and 1–2 desks). Someone promoted into Executives asks for one and leaves if they do not get it within 5 days. They judge its decoration: a finer office keeps them happy and loyal. Losing one to a rival hurts culture and output.'},
 ];
@@ -335,7 +335,7 @@ const empDept=e=>DEPTS.find(d=>d.id===e.dept);
 const expMult=e=>0.6+0.4*Math.min(1,e.xp/100);          // inexperienced staff work at 60%
 const satMult=e=>e.sat===undefined?1:e.sat<40?0.85:e.sat>=80?1.05:1;
 const pushMult=e=>1+Math.min(1.5,(e.push||0)*.25);
-const empMult=e=>expMult(e)*LEVELS[e.level].out*satMult(e)*pushMult(e)*(e.training?.2:1)*(1+.1*(e.cert||0))*(e.caff&&window.__coBoot&&gt()<e.caff.until?1+e.caff.v:1);         // experience × seniority
+const empMult=e=>expMult(e)*LEVELS[e.level].out*satMult(e)*pushMult(e)*(e.training?.2:1)*(e.caff&&window.__coBoot&&gt()<e.caff.until?1+e.caff.v:1);         // experience × seniority
 const isExperienced=e=>e.xp>=100;
 const NEXT_DEPT={intern:'support',support:'eng',eng:'exec',sales:'mkt',mkt:'exec',legal:'finance',finance:'exec'};
 const nextDept=e=>{const id=NEXT_DEPT[e.dept];return id?DEPTS.find(d=>d.id===id):null};
@@ -471,8 +471,19 @@ function windTick(){if(!S.wind)return;for(let t=0;t<4;t++){const w=S.wind[t];if(
   if(gtNow()>=w.start+w.dur&&((S.backlog||[])[t]||0)<0.05){S.wind[t]=null;S.backlog[t]=0;const nm=TIERS[t].name.toLowerCase();
     if(!w.lost){repHit(2);toast('Every '+nm.replace(/s$/,'')+' client was delivered. Reputation +2.');logEvent('Wound down '+nm+' without losing a client. Reputation +2.',0)}
     else{toast(nm[0].toUpperCase()+nm.slice(1)+' wound down. '+w.lost+' client'+(w.lost>1?'s':'')+' lost along the way.','warn');logEvent('Wound down '+nm+': '+w.lost+' client'+(w.lost>1?'s':'')+' lost.',0)}}}}
-function sellTier(e){if(e.dept!=='sales')return -1;const s=skillOf(e);return s>=3?(hasExecSeat()?3:2):s>=1?1:0}
-function delTier(e){const s=skillOf(e);let q=e.dept==='intern'?0:e.dept==='support'?(s>=1?1:0):e.dept==='eng'?Math.min(3,s):-1;if(q>=2&&!legalOK())q=1;return q}
+// What someone can handle depends on their department and promotion level:
+//   Sales: Junior quick jobs · Mid projects · Senior enterprise · Lead strategic (with an executive in a private office)
+//   Delivery: Interns quick jobs · Support projects · Engineering enterprise · Senior+ Engineering strategic (with an executive)
+function sellTier(e){if(e.dept!=='sales')return -1;return e.level>=3?(hasExecSeat()?3:2):e.level}
+function delTier(e){return e.dept==='intern'?0:e.dept==='support'?1:e.dept==='eng'?(e.level>=2&&hasExecSeat()?3:2):-1}
+function tierWith(e,level){const c=Object.assign({},e,{level});return {sell:sellTier(c),del:delTier(c)}}
+// what the next promotion would unlock, for buttons and hints
+function promoUnlock(e){if(isTop(e)){const nd=nextDept(e);return nd?'Move to '+nd.name:''}
+  const a=tierWith(e,e.level),b=tierWith(e,e.level+1),L=LEVELS[e.level+1].name;
+  if(b.sell>a.sell)return L+': sells '+TIERS[b.sell].short;if(b.del>a.del)return L+': delivers '+TIERS[b.del].short;
+  if(e.dept==='sales'&&e.level+1===3&&!hasExecSeat())return L+': Strategic once an Exec has an office';
+  if(e.dept==='eng'&&e.level+1===2&&!hasExecSeat())return L+': Strategic once an Exec has an office';
+  return L+': output ×'+LEVELS[e.level+1].out}
 let flowCache={t:-1,v:null};
 function computeFlow(){const now=performance.now();if(flowCache.v&&now-flowCache.t<100)return flowCache.v;
   const D=[0,0,0,0],cap=[0,0,0,0],mk=(1+eff(byId('mkt'))*0.10)*execBoost()*lastBuzzMult*repDealMult(),sales=byId('sales');
@@ -710,9 +721,9 @@ function buildHire(){
 const f1=n=>n>=100?Math.round(n).toLocaleString():n>=10?n.toFixed(1):n.toFixed(2);
 function updateHire(){
   const D=demand(),C=capacity(),bn=bottleneck();
-  const F=computeFlow(),hasSeniorSales=S.staffList.some(e=>e.dept==='sales'&&skillOf(e)>=3);
-  const why=[null,'Needs experienced Sales','Needs a Senior salesperson (promote experienced Sales)',hasSeniorSales?'Needs an Executive in a private office':'Needs a Senior salesperson and an Executive'];
-  const whoDel=['Anyone can deliver','Needs experienced Support or Engineering','Needs Mid+ Engineering and an experienced Lawyer','Needs Senior+ Engineering and an experienced Lawyer'];
+  const F=computeFlow(),hasLeadSales=S.staffList.some(e=>e.dept==='sales'&&e.level>=3);
+  const why=[null,'Needs a Mid salesperson (promote Sales)','Needs a Senior salesperson (promote Sales)',hasLeadSales?'Needs an Executive in a private office':'Needs a Lead salesperson and an Executive in a private office'];
+  const whoDel=['Anyone can deliver','Needs Support or Engineering','Needs Engineering','Needs a Senior+ Engineer and an Executive in a private office'];
   const rows=TIERS.map((T_,t)=>{const inn=F.D[t],srv=F.served[t],bl=(S.backlog||[0,0,0,0])[t],dly=delayOf(t),short=inn>0&&srv<inn*.9;
     const off=tierOff(t),wl=off?windLeft(t):0;
     const status=off&&pipelineOff()?'<span style="color:var(--amber)">Off. Switch on to start selling.</span>':off?(wl>=.5?`<span style="color:${short?'var(--red)':'var(--amber)'}">No new deals. ${Math.ceil(wl)} existing contract${Math.ceil(wl)>1?'s':''} still to deliver${short?': not enough qualified delivery, clients will walk':''}.</span>`:'<span class="lock">Paused. Sales sell smaller deals instead.</span>'):inn<=0?`<span class="lock">${why[t]||'—'}</span>`:short?`<span style="color:var(--red)">${bl>0.5?'Delay '+Math.round(dly)+'s · ':''}${whoDel[t]}</span>`:bl>0.5?`<span style="color:var(--amber)">Clearing backlog</span>`:'<span style="color:var(--mint)">On time</span>';
@@ -841,7 +852,7 @@ function updateTeam(){
   {const rq=all.filter(e=>e.req).sort((a,b)=>a.req.until-b.req.until),oq=all.filter(e=>e.officeReq),rl=$('#reqList');
    const rh=rq.length||oq.length?`<div class="card req"><h2>Requests (${rq.length+oq.length})</h2>${oq.length||rq.some(e=>/room/.test(e.req.t))?'<button class="linkbtn" data-help="'+(oq.length?'office':'private')+'">What counts as a '+(oq.length?'private office':'private room')+'?</button>':''}<ul class="reqs">${oq.map(e=>{const left=Math.max(0,(e.officeReq.until-now)/9);return `<li><b>${e.name}</b> <small>Executive</small> needs <b style="color:var(--red)">their own office</b><span class="hint2">Build a room with walls, a door and 1–2 desks. ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they leave (culture −15, output −15% for a day, morale −5).</span></li>`}).join('')}${rq.map(e=>{const left=Math.max(0,(e.req.until-now)/9);return `<li><b>${e.name}</b> <small>${empDept(e).name}</small> asks for <b>${e.req.t}</b><span class="hint2">${e.req.need==='style'?(()=>{const lv=(REQS.style.find(r=>r.t===e.req.t)||{lvl:2}).lvl,n=Math.max(1,S.staffList.length),have=stylePoints(),need=lv*n;return `Office style <b>${sf(have)} / ${need}</b> points (${lv} per person × ${n} staff), so <b>${sf(Math.max(0,need-have))}</b> more to go. Style counts across every floor and grows with each hire. ${STYLE_GUIDE} `})():e.req.hint} ${left>=1?left.toFixed(1)+' days':Math.max(1,Math.round(left*150))+'s'} left, or they feel ignored.</span></li>`}).join('')}</ul></div>`:'';
    if(rl.innerHTML!==rh)rl.innerHTML=rh}
-  $('#teamTxt').textContent=`${ready.length} ready for promotion. Each person has one thing they care about most; meet it and they stay happy and work a little faster, ignore it and they may quit or be poached. New hires start at 60% output and learn at a desk (about 4 minutes), or faster with onboarding training. Advanced courses (up to two) let experienced staff handle harder deals without a promotion. Promotions raise output (Mid ×1.25, Senior ×1.5, Lead ×1.8) and payroll${pr?' (now '+fmt(pr)+'/s)':''}; a Lead can move into the next department. Letting someone go costs severance and shakes the team.`;
+  $('#teamTxt').textContent=`${ready.length} ready for promotion. Each person has one thing they care about most; meet it and they stay happy and work a little faster, ignore it and they may quit or be poached. New hires start at 60% output and learn at a desk (about 4 minutes), or faster with onboarding training. Only experienced staff can be promoted, and promotions are what unlock bigger deals (see each person's “next” line). After a promotion they learn the new role again: train them to become experienced in about an hour instead of waiting. Promotions raise output (Mid ×1.25, Senior ×1.5, Lead ×1.8) and payroll${pr?' (now '+fmt(pr)+'/s)':''}; a Lead can move into the next department. Letting someone go costs severance and shakes the team.`;
   {const tl=all.filter(e=>!isExperienced(e)&&!e.training),tc=tl.reduce((t,e)=>t+trainCost(e),0),tb=$('#trainAll');tb.disabled=!tl.length||S.cash<Math.min(...tl.map(trainCost));tb.innerHTML=tl.length?'<span>Train all learners ('+tl.length+') · '+fmt(tc)+'</span><small>about an hour of game time, then fully experienced</small>':'<span>Nobody needs training</span>'}
   const pa=$('#promoteAll');pa.disabled=!ready.length||S.cash<Math.min(...ready.map(promoteCost));pa.innerHTML=ready.length?'<span>Promote all ready · '+fmt(readyCost)+'</span>':'<span>Nobody ready yet</span>';
   document.querySelectorAll('#teamFilter button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===teamFilter));
@@ -854,8 +865,8 @@ function updateTeam(){
       <div class="sub num">${isExperienced(e)?'Experienced':'Learning '+Math.floor(e.xp)+'%'} · output ×${empMult(e).toFixed(2)} · cares about: ${NEEDS[e.need]||'—'}</div>${e.caff&&gt()<e.caff.until?`<div class="sub" style="color:#f5b54a">Caffeinated +${Math.round(e.caff.v*100)}% (${e.caff.name})</div>`:''}${capLabel(e)?`<div class="sub" style="color:#c9a6ff">${capLabel(e)}${e.training?' · <b style="color:#8fd3ff">in training, '+Math.max(1,Math.round((e.training.until-gt())/9*150))+'s left</b>':''}</div>`:''}${e.dept==='exec'?(()=>{const of=execOffice(e),rk=poachRisk(e);return `<div class="sub">${of?`Office: <b style="color:${of.color}">${of.grade}</b> (score ${of.score}, expects ${of.expect})`:'<b style="color:var(--red)">No private office</b>'} · poach risk <b style="color:${rk[1]}">${rk[0]}</b></div>`})():''}
       ${(e.burn||0)>=1?`<div class="sub" style="color:${e.burn>=70?'var(--red)':'var(--amber)'}">Strain ${Math.round(e.burn)}%${e.push>.3?' · working flat out':''}</div>`:''}${e.req?`<div class="sub" style="color:var(--amber)">Asking for ${e.req.t}</div>`:''}${notes?`<div class="sub notes">${notes}</div>`:''}<div class="bar"><i style="width:${Math.min(100,e.xp)}%;background:${isExperienced(e)?'var(--amber)':'var(--mint)'}"></i></div>
       <button class="fire" data-id="${e.id}" data-a="fire">${confirmFire===e.id?'Confirm: let go · severance '+fmt(severance(e)):'Let go'}</button></div>
-      <div class="acts">${(()=>{const ti=trainInfo(e);return ti.busy?`<button class="buy train num" disabled><span class="c">In training</span><small>${Math.max(1,Math.round((e.training.until-gt())/9*150))}s left</small></button>`:ti.maxed?`<button class="buy train num" disabled><span class="c">Fully trained</span><small>${'★'.repeat(MAX_CERT)}</small></button>`:`<button class="buy train num" data-id="${e.id}" data-a="train" ${S.cash>=ti.cost?'':'disabled'}><span class="c">Train · ${fmt(ti.cost)}</span><small>${S.cash>=ti.cost?'→ '+ti.unlock:'Need '+fmt(ti.cost-S.cash)}</small></button>`})()}
-      <button class="buy num" data-id="${e.id}" ${cp&&S.cash>=c?'':'disabled'}><span class="c">${top?'Top level':transferLocked(e)?'Floor '+nd.floor:cp?fmt(c):'Not ready'}</span><small>${top?'':transferLocked(e)?'Lease to unlock':cp?(S.cash>=c?(tr?'Move to '+nd.name:'Promote'):'Need '+fmt(c-S.cash)):(tr?'Needs experience to move to '+nd.name:'Needs experience')}</small></button></div></div>`}).join('')
+      <div class="acts">${(()=>{const ti=trainInfo(e);return ti.busy?`<button class="buy train num" disabled><span class="c">In training</span><small>${Math.max(1,Math.round((e.training.until-gt())/9*150))}s left</small></button>`:ti.maxed?`<button class="buy train num" disabled><span class="c">Experienced ✓</span><small>${canPromote(e)?'Ready to promote':'Full speed'}</small></button>`:`<button class="buy train num" data-id="${e.id}" data-a="train" ${S.cash>=ti.cost?'':'disabled'}><span class="c">Train · ${fmt(ti.cost)}</span><small>${S.cash>=ti.cost?'→ '+ti.unlock:'Need '+fmt(ti.cost-S.cash)}</small></button>`})()}
+      <button class="buy num" data-id="${e.id}" ${cp&&S.cash>=c?'':'disabled'}><span class="c">${top?'Top level':transferLocked(e)?'Floor '+nd.floor:cp?fmt(c):'Not ready'}</span><small>${top?'':transferLocked(e)?'Lease to unlock':cp?(S.cash>=c?(tr?'Move to '+nd.name:'→ '+promoUnlock(e)):'Need '+fmt(c-S.cash)):(tr?'Needs experience to move to '+nd.name:'Needs experience (train or wait)')}</small></button></div></div>`}).join('')
     +(all.filter(filt).length>60?'<p class="sub">Showing 60 of '+all.filter(filt).length+'.</p>':'')||'<div class="card"><p>'+(all.length?'Nobody matches this filter.':'No employees yet. Hire some in the Hire tab.')+'</p></div>';
 }
 function buildPerks(){
@@ -975,18 +986,20 @@ function rulesHTML(){const dm=Math.round(DAY_SECONDS/60*10)/10,runMin=Math.round
   ${sec('🤝','Deals',`<ul><li>The <b>deal pipeline starts switched off</b>. Switch on a deal type in the strip above the office to start selling.</li>
     <li><b>Sales</b> bring deals in. <b>Interns, Support and Engineering</b> deliver them. You earn when a deal is delivered.</li></ul>
     <table><tr><th>Deal</th><th>Sold by</th><th>Delivered by</th><th>Value</th></tr>
-    <tr><td>Quick jobs</td><td>Any Sales</td><td>Anyone</td><td>×1</td></tr>
-    <tr><td>Projects</td><td>Experienced Sales</td><td>Experienced Support or Engineering</td><td>×2</td></tr>
-    <tr><td>Enterprise</td><td>Senior Sales</td><td>Mid+ Engineering and an experienced Lawyer</td><td>×3</td></tr>
-    <tr><td>Strategic</td><td>Senior Sales + an Executive in a private office</td><td>Senior+ Engineering and an experienced Lawyer</td><td>×5</td></tr></table>
+    <tr><td>Quick jobs</td><td>Junior Sales</td><td>Interns (anyone)</td><td>×1</td></tr>
+    <tr><td>Projects</td><td>Mid Sales</td><td>Support</td><td>×2</td></tr>
+    <tr><td>Enterprise</td><td>Senior Sales</td><td>Engineering</td><td>×3</td></tr>
+    <tr><td>Strategic</td><td>Lead Sales</td><td>Senior+ Engineering</td><td>×5</td></tr></table>
+    <ul><li><b>Strategic</b> also needs an <b>Executive</b> sitting in a private office. Higher levels can always handle smaller deals too.</li></ul>
     <ul><li>Deals that wait too long make <b>clients walk away</b>, which costs reputation. Bigger deals cost more.</li>
     <li><b>Pausing</b> a deal type stops new sales only. Clients you already signed still need their work delivered: Quick jobs ${N('3 hours')}, Projects ${N('6 hours')}, Enterprise ${N('1 day')}, Strategic ${N('2 days')}. Deliver them all for ${N('+2')} reputation; losing one of them costs ${N('1.5×')} the usual hit.</li>
     <li><b>Walk-in clients</b> pop up over the office, labelled with the deal type they want. Tap one to see the value, the work and whether your team can deliver it. <b>Accept</b> for a ${N('20%')} signing bonus plus payment as the work is delivered; signed clients are served first and each has a deadline (miss it and they walk, costing reputation; deliver on time for ${N('+0.5')}). <b>Decline</b> and reputation drops ${N('0.5')} (Quick) to ${N('2')} (Strategic); ignore them and it drops half that.</li>
     <li><b>Overwork:</b> if deals come in faster than the team delivers for ${N('2 days')}, the team burns out and morale drops until delivery catches up.</li></ul>`)}
-  ${sec('👥','Staff and careers',`<ul><li>New hires start at ${N('60%')} output and become <b>experienced</b> after about ${N('4 minutes')} at a desk (half speed without one). <b>Onboarding</b> training does it in ${N('1 game hour')}.</li>
-    <li>Only experienced staff can be <b>promoted</b>: Mid ×${N('1.25')}, Senior ×${N('1.5')}, Lead ×${N('1.8')} output, with higher pay. A Lead can move to the next department.</li>
+  ${sec('👥','Staff and careers',`<ul><li><b>Experience → promotion → bigger deals.</b> Only experienced staff can be promoted, and promotions unlock bigger deals: Sales go Quick → Projects → Enterprise → Strategic as they rise from Junior to Lead.</li>
+    <li>New hires start at ${N('60%')} output and become <b>experienced</b> after about ${N('4 minutes')} at a desk (half speed without one), or in ${N('1 game hour')} with <b>training</b>.</li>
+    <li>A promotion raises output (Mid ×${N('1.25')}, Senior ×${N('1.5')}, Lead ×${N('1.8')}) and pay, then they learn the new role: experience starts again, so train them to be ready for the next step sooner.</li>
+    <li><b>Career moves:</b> an experienced Lead moves up a department as a Junior: Intern → Support → Engineering → Executive, Sales → Marketing → Executive, Legal → Finance → Executive. That is how an Intern ends up delivering Projects, then Enterprise.</li>
     <li>Leaving someone waiting for a promotion for more than a day slowly drains culture.</li>
-    <li><b>Advanced courses</b> (up to ${N('2')}) let experienced staff handle harder deals without a promotion.</li>
     <li><b>Tap a person</b> to push them: each tap adds output (up to ${N('2.5×')}) and ${N('+5')} burnout. At ${N('100')} burnout they quit. Rest, naps and lunch bring it down.</li>
     <li><b>Letting someone go</b> costs severance, ${N('5+')} culture (${N('10')} for an executive) and ${N('2')} reputation.</li>
     <li>New departments unlock as you lease floors 2, 3 and 4.</li></ul>`)}
@@ -1835,7 +1848,7 @@ const CLIENT_NAMES=[['Corner Bakery','Rosa\'s Florist','Ace Plumbing','Pixel Pri
   ['Summit Bank','Atlas Motors','Redwood Insurance','Lumen Airlines','Crescent Retail Group','Granite Energy'],
   ['Meridian Global','the City Council','Helios Telecom','Titan Industries','the National Health Trust','Oceanic Shipping']];
 const TIER_COL=['#5fd3a6','#6fa4ec','#b18cff','#f5c95a'];
-const WHO_DEL=['Anyone can deliver them.','Experienced Support or Engineering deliver them.','Mid+ Engineering plus an experienced Lawyer deliver them.','Senior+ Engineering plus an experienced Lawyer deliver them.'];
+const WHO_DEL=['Anyone can deliver them.','Support or Engineering deliver them.','Engineering delivers them.','Senior+ Engineers deliver them, once an Executive has a private office.'];
 const declineHit=t=>.5+.5*t;
 const fmtH=h=>h>=9?(Math.round(h/9*10)/10)+' day'+(h>=9.5?'s':''):Math.round(h*10)/10+' game hours'; // reputation cost of turning a client away
 let clientOffer=null;
@@ -1968,21 +1981,19 @@ function requestTick(dt){officeTick();const now=gt();let open=S.staffList.filter
     if(Math.random()<dt/90*((e.sat??60)<70?2:1)){const q=nextRequest(e);if(q){if(/room/.test(q.t))setTimeout(()=>showHelp('private'),600);e.req=Object.assign(q,{made:now,until:now+13.5});open++;toast(e.name.split(' ')[0]+' asks for '+q.t+' (Team tab)');logEvent(e.name+' ('+empDept(e).name+') asked for '+q.t+'.',0);teamSig=''}}}}
 const MAX_CERT=2;
 function trainInfo(e){if(e.training)return {busy:true};const d=empDept(e),hd=hireDisc();
-  let kind,cost,hours,clone;
-  if(!isExperienced(e)){kind='onboard';cost=d.cost*.4*(1+e.level)*hd;hours=1;clone=Object.assign({},e,{xp:100})}
-  else if((e.cert||0)<MAX_CERT){kind='advanced';cost=d.cost*(1.2+(e.cert||0)*.8)*(1+e.level)*hd;hours=2;clone=Object.assign({},e,{cert:(e.cert||0)+1})}
-  else return {maxed:true};
-  const st=sellTier(e),ns=sellTier(clone),dl=delTier(e),nd=delTier(clone);
-  const unlock=ns>st?'Sells '+TIERS[ns].short:nd>dl?'Delivers '+TIERS[nd].short:kind==='onboard'?'Full speed':'+10% output';
-  return {kind,cost,hours,unlock,name:kind==='onboard'?'Onboarding':'Advanced course '+((e.cert||0)+1)}}
+  if(isExperienced(e))return {maxed:true};
+  const cost=d.cost*.4*(1+e.level)*hd,hours=1,canUp=!isTop(e)||canTransfer(Object.assign({},e,{xp:100}));
+  return {kind:'onboard',cost,hours,unlock:canUp?'Experienced: ready to promote':'Experienced: full speed',name:'Training'}}
 const trainCost=e=>{const t=trainInfo(e);return t.cost||Infinity};
 function startTraining(e,quiet){const t=trainInfo(e);if(t.busy||t.maxed)return false;if(S.cash<t.cost){if(!quiet)toast('Training needs '+fmt(t.cost-S.cash)+' more');return false}
   S.cash-=t.cost;e.training={until:gt()+t.hours,kind:t.kind};refreshStaff();if(!quiet){logEvent(e.name+' ('+empDept(e).name+') started '+t.name.toLowerCase()+' ('+t.unlock.toLowerCase()+').',0);toast(e.name.split(' ')[0]+' is in '+t.name.toLowerCase()+' for about '+(t.hours>1?'two hours':'an hour'))}teamSig='';save();return true}
 function trainingTick(){if(!window.__coBoot)return;const now=gt();for(const e of S.staffList){if(!e.training||now<e.training.until)continue;const bs=sellTier(e),bd=delTier(e),kind=e.training.kind||'onboard';
-  if(kind==='onboard')e.xp=100;else e.cert=Math.min(MAX_CERT,(e.cert||0)+1);e.training=null;
-  const ns=sellTier(e),nd=delTier(e),up=ns>bs?'can now sell '+TIERS[ns].name.toLowerCase():nd>bd?'can now deliver '+TIERS[nd].name.toLowerCase():'';
-  logEvent(e.name+' finished '+(kind==='onboard'?'onboarding':'an advanced course')+(up?' and '+up:'')+'.',0);toast(e.name.split(' ')[0]+' finished training'+(up?': '+up:''));refreshStaff();teamSig=''}}
-function capLabel(e){const st=sellTier(e),dl=delTier(e),c=e.cert?' · trained '+'★'.repeat(e.cert):'';if(st>=0)return 'Sells '+TIERS[st].short+c;if(dl>=0)return 'Delivers up to '+TIERS[dl].short+c;return c?c.slice(3):''}
+  e.xp=100;e.training=null;const pu=canPromote(e)?promoUnlock(e):'';
+  if(canPromote(e)&&e.readyAt===undefined)e.readyAt=gt();
+  logEvent(e.name+' finished training and is now experienced'+(pu?'. Ready to promote ('+pu+')':'')+'.',0);toast(e.name.split(' ')[0]+' finished training'+(pu?': ready to promote. '+pu:': now experienced'));refreshStaff();teamSig=''}}
+function capLabel(e){const st=sellTier(e),dl=delTier(e),nx=!isTop(e)?promoUnlock(e):'';const more=nx&&!/output/.test(nx)?' · next: '+nx:'';
+  const wait=((e.dept==='sales'&&e.level>=3)||(e.dept==='eng'&&e.level>=2))&&!hasExecSeat()?' · Strategic once an Exec has an office':'';
+  if(st>=0)return 'Sells up to '+TIERS[st].short+(wait||more);if(dl>=0)return 'Delivers up to '+TIERS[dl].short+(wait||more);return ''}
 // ---------- room help ----------
 let showRooms=false;
 const ROOM_SVG=`<svg viewBox="0 0 150 70" width="150" height="70" aria-hidden="true">
