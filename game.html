@@ -40,7 +40,16 @@ canvas{display:block;width:100%;height:100%}
 .hint.tool{color:var(--amber);font-weight:700}
 .pop{position:absolute;font-family:"Chakra Petch",sans-serif;font-weight:700;pointer-events:none;animation:rise .9s ease-out forwards;text-shadow:0 1px 0 #000;white-space:nowrap}
 @keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-60px)}}
-.client{position:absolute;width:56px;height:56px;border-radius:50%;background:var(--amber);color:#2a1d05;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:11px;line-height:1.1;display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 0 6px rgba(245,181,74,.25),0 6px 16px rgba(0,0,0,.5);animation:bob 1.2s ease-in-out infinite}
+.client small{display:block;font-size:8px;letter-spacing:.06em;opacity:.8}
+.helpcard.clientcard{border-color:var(--amber);z-index:7}.clientcard .hc-top{display:flex;align-items:center;justify-content:flex-start;gap:8px;margin-bottom:0}.helpcard.clientcard .hc-top b{font-size:15px;flex:1;color:var(--text)}
+.cc-tag{padding:2px 8px;border-radius:999px;color:#141a2e;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.cc-sub{margin:6px 0 4px;color:var(--muted)}.cc-sub b{color:var(--text)}.clientcard .ipo-grid{font-size:12.5px;margin:6px 0}
+.cc-warn{margin:6px 0;padding:6px 8px;border-radius:8px;background:rgba(245,181,74,.12);color:var(--amber);font-size:12.5px}.cc-warn.bad{background:rgba(240,113,107,.14);color:var(--red)}
+.contracts{margin-top:10px;display:flex;flex-direction:column;gap:6px}.ctr{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:13px}
+.ctr .cn{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ctr .cb{grid-column:1/-1;height:4px;border-radius:2px;background:var(--panel2);overflow:hidden}.ctr .cb i{display:block;height:100%}
+.cc-ok{margin:6px 0;color:var(--mint);font-size:12.5px}
+.clientcard .hc-foot{display:flex;gap:8px;margin-top:8px}.clientcard .hc-foot .buy{flex:1;padding:10px 8px;font-size:13px}
+.client{position:absolute;width:72px;height:72px;border-radius:50%;background:var(--amber);color:#141a2e;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:12px;line-height:1.1;display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 0 6px rgba(245,181,74,.25),0 6px 16px rgba(0,0,0,.5);animation:bob 1.2s ease-in-out infinite;flex-direction:column;z-index:3}
 @keyframes bob{50%{transform:translateY(-6px)}}
 
 nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--line)}
@@ -249,6 +258,7 @@ body.cap-col #scene{height:min(48vh,400px)}.cap-sum b{color:var(--text)}
 <div class="toast" id="toast"></div>
 <div class="overbg" id="rulesBg" hidden><div class="rulescard" id="rulesCard" role="dialog" aria-modal="true" aria-labelledby="rulesTitle"></div></div>
 <div class="overbg" id="overBg" hidden><div class="overcard" id="overCard" role="dialog" aria-modal="true" aria-labelledby="overTitle"></div></div>
+<div class="helpcard clientcard" id="clientCard" hidden role="dialog" aria-labelledby="ccTitle"></div>
 <div class="helpcard" id="helpCard" hidden role="dialog" aria-labelledby="helpTitle"></div>
 
 <script>
@@ -473,15 +483,22 @@ function computeFlow(){const now=performance.now();if(flowCache.v&&now-flowCache
 const sum=a=>a.reduce((t,x)=>t+x,0);
 function demand(){return sum(computeFlow().D)}
 function capacity(){return sum(computeFlow().cap)}
-let lostT=0;
+let lostT=0,lostAgg={n:0,rep:0,t:0,broken:false};
 function pipelineTick(dt){const F=computeFlow();if(!S.backlog)S.backlog=[0,0,0,0];if(!S.lostU)S.lostU=[0,0,0,0];
   const left=F.cap.map(c=>c*dt);let inc=0,lostNow=0;
+  if(S.contracts&&S.contracts.length){const now=gtNow();S.contracts.sort((a,b)=>a.due-b.due);
+    for(const c of S.contracts.slice()){for(let k=c.t;k<4&&c.left>1e-9;k++){const x=Math.min(c.left,left[k]);left[k]-=x;c.left-=x;inc+=x*TIERS[c.t].val}
+      if(c.left<=1e-6){S.contracts.splice(S.contracts.indexOf(c),1);repHit(.5);toast(c.name+' delivered on time. Reputation +0.5');logEvent('Delivered '+c.name+'\u2019s '+TIERS[c.t].name.toLowerCase().replace(/s$/,'')+' on time. Reputation +0.5.',1)}
+      else if(now>c.due){S.contracts.splice(S.contracts.indexOf(c),1);S.lostClients=(S.lostClients||0)+1;S.lastLost={t:c.t,at:now};const h=1+1.2*c.t;repHit(-h);
+        toast(c.name+' walked: their '+TIERS[c.t].short.toLowerCase()+' work was late. Reputation −'+h.toFixed(1),'bad','lost');logEvent(c.name+' walked away: their work was late ('+Math.round((1-c.left/c.units)*100)+'% done). Reputation −'+h.toFixed(1)+'.',0)}}}
   for(let t=3;t>=0;t--){let want=S.backlog[t]+F.D[t]*dt,serve=0;for(let k=t;k<4&&want-serve>1e-9;k++){const x=Math.min(want-serve,left[k]);left[k]-=x;serve+=x}
     S.backlog[t]=want-serve;inc+=serve*TIERS[t].val;
     const w=windOf(t),patience=w&&F.D[t]<=1e-6?0:Math.max(1,F.D[t])*25;if(S.backlog[t]>patience){const lost=S.backlog[t]*.04*dt+(patience?0:.02*dt);const ls=Math.min(S.backlog[t],lost);S.backlog[t]-=ls;S.lostU[t]+=ls;
-      while(S.lostU[t]>=TIERS[t].effort-1e-9){S.lostU[t]=Math.max(0,S.lostU[t]-TIERS[t].effort);S.lostClients=(S.lostClients||0)+1;S.lastLost={t,at:gtNow(),broken:!!w};if(w)w.lost++;const rl=S.repLoss=(S.repLoss||0)+1;repHit(-(1+1.2*t)*(w?1.5:1)/(1+.5*(rl-1)));lostNow++}}}
+      while(S.lostU[t]>=TIERS[t].effort-1e-9){S.lostU[t]=Math.max(0,S.lostU[t]-TIERS[t].effort);S.lostClients=(S.lostClients||0)+1;S.lastLost={t,at:gtNow(),broken:!!w};if(w)w.lost++;const rl=S.repLoss=(S.repLoss||0)+1,rh0=(1+1.2*t)*(w?1.5:1)/(1+.5*(rl-1));repHit(-rh0);lostAgg.n++;lostAgg.rep+=rh0;lostAgg.t=Math.max(lostAgg.t,t);if(w)lostAgg.broken=true;lostNow++}}}
   const earned=inc*dealValue()*officeMult();earn(earned);S.rateSm=(S.rateSm||0)+((earned/Math.max(dt,1e-3))-(S.rateSm||0))*Math.min(1,dt*1.5);
-  if(lostNow){lostT-=1;if(lostT<=0){lostT=6;const t=S.lastLost.t,br=S.lastLost.broken,rh=((1+1.2*t)*(br?1.5:1)/(1+.5*Math.max(0,(S.repLoss||1)-1))).toFixed(1);toast((br?'Broke a promise: a '+TIERS[t].short.toLowerCase()+' client from before the pause walked. ':'Lost a client: '+TIERS[t].name.toLowerCase()+' were delayed too long. ')+'Reputation −'+rh,'bad','lost');logEvent('A client walked away: their '+TIERS[t].name.toLowerCase().replace(/s$/,'')+' was '+(br?'never finished after you paused new deals':'delayed too long')+'. Reputation −'+rh+'.',0)}}
+  if(lostAgg.n&&lostT<=0){lostT=8;const {n,t,broken:br}=lostAgg,rh=lostAgg.rep<.1?'<0.1':lostAgg.rep.toFixed(1),nm=TIERS[t].name.toLowerCase();
+    toast((br?(n>1?'Broke a promise: '+n+' clients from before the pause walked. ':'Broke a promise: a '+TIERS[t].short.toLowerCase()+' client from before the pause walked. '):(n>1?'Lost '+n+' clients: deals were delayed too long. ':'Lost a client: '+nm+' were delayed too long. '))+'Reputation −'+rh,'bad','lost');
+    logEvent((n>1?n+' clients walked away':'A client walked away')+': '+(br?'work never finished after you paused new deals':'deals delayed too long')+'. Reputation −'+rh+'.',0);lostAgg={n:0,rep:0,t:0,broken:false}}
   lostT=Math.max(-1,lostT-dt)}
 function delayOf(t){const F=computeFlow(),r=F.served[t];return (S.backlog||[0,0,0,0])[t]/Math.max(.01,r>0?r:F.D[t])}
 function dealValue(){return BASE_VALUE*(1+eff(byId('support'))*0.02+eff(byId('legal'))*0.12+eff(byId('finance'))*0.08)}
@@ -618,22 +635,30 @@ document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()
   if(tab!=='build')setTool(null);renderTab();
 }));
 let toastT,toastKey=null;const toastSnooze={};
-function hideToast(){el.toast.classList.remove('show');clearTimeout(toastT)}
-function toast(m,kind,key){if(key&&toastSnooze[key]&&performance.now()<toastSnooze[key])return;toastKey=key||null;
-  if(!el.toast.querySelector('.tm')){el.toast.innerHTML='<span class="tm"></span><button class="tx" aria-label="Dismiss">✕</button>';el.toast.querySelector('.tx').addEventListener('click',ev=>{ev.stopPropagation();if(toastKey)toastSnooze[toastKey]=performance.now()+60000;hideToast()})}
+function hideToast(){el.toast.classList.remove('show');clearTimeout(toastT);if(toastQ.length&&!toastQT)toastQT=setTimeout(()=>{toastQT=null;const q=toastQ.shift();if(q)showToastNow(...q)},250)}
+let toastQ=[],toastShownAt=0,toastQT=null;
+function toast(m,kind,key){if(key&&toastSnooze[key]&&performance.now()<toastSnooze[key])return;
+  const now=performance.now(),cur=el.toast.querySelector('.tm');
+  if(el.toast.classList.contains('show')&&cur&&cur.textContent===m){clearTimeout(toastT);toastT=setTimeout(hideToast,kind==='bad'||kind==='warn'?5000:2600);return}
+  if(el.toast.classList.contains('show')&&now-toastShownAt<1800){if(!toastQ.some(q=>q[0]===m)){toastQ.push([m,kind,key]);if(toastQ.length>3)toastQ.shift()}
+    if(!toastQT)toastQT=setTimeout(()=>{toastQT=null;const q=toastQ.shift();if(q){toastShownAt=0;toast(...q)}},1800-(now-toastShownAt));return}
+  showToastNow(m,kind,key)}
+function showToastNow(m,kind,key){toastShownAt=performance.now();toastKey=key||null;
+  if(!el.toast.querySelector('.tm')){el.toast.innerHTML='<span class="tm"></span><button class="tx" aria-label="Dismiss">✕</button>';el.toast.querySelector('.tx').addEventListener('click',ev=>{ev.stopPropagation();if(toastKey){toastSnooze[toastKey]=performance.now()+60000;toastQ=toastQ.filter(q=>q[2]!==toastKey)}hideToast()})}
   el.toast.querySelector('.tm').textContent=m;el.toast.style.background=kind==='bad'?'var(--red)':kind==='warn'?'var(--amber)':'';el.toast.style.color=kind==='bad'?'#2a0a08':kind==='warn'?'#2a1d05':'';el.toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(hideToast,kind==='bad'||kind==='warn'?5000:2600)}
 function setTool(t){tool=t;updateHint();updateBuild()}
-function updateHint(){
-  if(onTown()){el.hint.className='hint';el.hint.textContent='';return}
-  if(!tool){el.hint.className='hint';el.hint.textContent=pipelineOff()?'Your deal pipeline is off. Switch on a deal type above the office to start selling.':S.morale<30?'Morale is critical: people are quitting. Add desks, amenities or perks.':staff()>deskList().length?'Some staff have no desk. Build more in the Build tab.'
+function updateHint0(H){
+  if(onTown()){H.className='hint';H.textContent='';return}
+  if(!tool){H.className='hint';H.textContent=pipelineOff()?'Your deal pipeline is off. Switch on a deal type above the office to start selling.':S.morale<30?'Morale is critical: people are quitting. Add desks, amenities or perks.':staff()>deskList().length?'Some staff have no desk. Build more in the Build tab.'
     :staff()===0?'You, the founder, bring in half a deal per second. Hire an intern to deliver them.'
     :bottleneck()==='sell'?'Team is idle: hire Sales to bring in more deals. Tap the office to hustle.'
     :bottleneck()==='deliver'?(isOverworked()?'Burnout! The team is overworked. Hire Interns, Support or Engineering to catch up.':'Deals are piling up: hire Interns to deliver them, or the team will burn out.')
     :'Tap the office to hustle for cash, or tap a person to make them work harder';return}
-  el.hint.className='hint tool';
-  if(tool==='remove')el.hint.textContent='Tap furniture to remove it (50% refund)';
-  else{const it=ITEMS.find(i=>i.id===baseOf(tool)),ti=tierInfo(tool);el.hint.textContent='Tap a tile to place '+(ti?ti.name.toLowerCase()+' ':'')+it.name.toLowerCase()+' · '+fmt(tierCost(it,tierOf(tool)))+(it.tiers?' (tap an existing '+it.name.toLowerCase()+' to upgrade it)':'')}
+  H.className='hint tool';
+  if(tool==='remove')H.textContent='Tap furniture to remove it (50% refund)';
+  else{const it=ITEMS.find(i=>i.id===baseOf(tool)),ti=tierInfo(tool);H.textContent='Tap a tile to place '+(ti?ti.name.toLowerCase()+' ':'')+it.name.toLowerCase()+' · '+fmt(tierCost(it,tierOf(tool)))+(it.tiers?' (tap an existing '+it.name.toLowerCase()+' to upgrade it)':'')}
 }
+function updateHint(){const H={className:el.hint.className,textContent:el.hint.textContent};updateHint0(H);if(el.hint.className!==H.className)el.hint.className=H.className;if(el.hint.textContent!==H.textContent)el.hint.textContent=H.textContent}
 function setView(v){S.view=v;layout();renderFloorTabs();renderAll();save()}
 function renderFloorTabs(){const box=$('#floorTabs');box.innerHTML='';
   const mk=(label,v)=>{const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-selected',v===S.view);
@@ -653,7 +678,7 @@ const f0=n=>n>=1000?fmt(n).slice(1):n>=10?Math.round(n).toString():n.toFixed(1);
 function updateCapStrip(){const el2=$('#capStrip');if(!el2)return;const F=computeFlow(),bl=S.backlog||[0,0,0,0];
   let inD=0,srvD=0,spareD=0;const allOff=pipelineOff(),cells=TIERS.map((T_,t)=>{const e=T_.effort,inn=F.D[t]/e,srv=F.served[t]/e;let sp=0;for(let k=t;k<4;k++)sp+=F.left[k];sp/=e;inD+=inn;srvD+=srv;
     const short=inn>0&&srv<inn*.9,locked=inn<=0&&F.cap.slice(t).every(c=>c<=0),scale=Math.max(inn,srv+sp,.01);
-    const bar=`<span class="mb"><i style="width:${srv/scale*100}%;background:var(--mint)"></i><i style="width:${Math.max(0,inn-srv)/scale*100}%;background:var(--red)"></i><i class="sp" style="width:${sp/scale*100}%"></i></span>`;
+    const pc=x=>Math.round(x/scale*100),bar=`<span class="mb"><i style="width:${pc(srv)}%;background:var(--mint)"></i><i style="width:${pc(Math.max(0,inn-srv))}%;background:var(--red)"></i><i class="sp" style="width:${pc(sp)}%"></i></span>`;
     const off=tierOff(t),wl=off?windLeft(t):0;
     const st=off?(wl>=.5?Math.ceil(wl)+' left':allOff?'Tap to start':'Paused'):locked?'Locked':short?(bl[t]>.5?'Late '+Math.round(delayOf(t))+'s':'Short '+f0(inn-srv)):inn<=0?'No sales':sp>inn*.2?'Room +'+f0(sp):'On time';
     return `<div class="cp${short&&(!off||wl>=.5)?' bad':''}${locked&&!off?' lock':''}${off?' off':''}"><div class="cph"><b>${T_.short}</b><button class="tgl${off?' is-off':''}" data-t="${t}" aria-pressed="${!off}" aria-label="${off?'Resume':'Pause'} ${T_.name}"><i></i></button></div><span class="nums">${inn>0?f0(inn)+' → '+f0(srv):locked?'—':'0 → room '+f0(sp)}</span>${bar}<span class="st${short?' r':''}">${st}</span></div>`});
@@ -662,10 +687,12 @@ function updateCapStrip(){const el2=$('#capStrip');if(!el2)return;const F=comput
   const col0=!!S.capCollapsed,bn=bottleneck(),chip=pipelineOff()?'<span class="chip2 a">'+(col0?'Pipeline off':'Pipeline off: tap a switch')+'</span>':bn==='deliver'?'<span class="chip2 r">'+(col0?'Need delivery':'Need qualified delivery')+'</span>':bn==='sell'?'<span class="chip2 a">'+(col0?'Room for sales':'Room for more sales')+'</span>':'<span class="chip2 g">Balanced</span>';
   const col=!!S.capCollapsed;el2.classList.toggle('collapsed',col);el2.classList.toggle('all-off',pipelineOff());
   const html=`<div class="cap-sum num"><span class="dots">${dots}</span><span class="sumtxt">${col?`<b>${f0(inD)}</b> → <b>${f0(srvD)}</b> deals/s`:`Deals/s: in <b>${f0(inD)}</b> → delivered <b>${f0(srvD)}</b> · spare <b>${f0(spareD)}</b>`}${S.lostClients?' · <span style="color:var(--red)">'+S.lostClients+' lost</span>':''}</span>${chip}<button class="capT" aria-expanded="${!col}" aria-label="${col?'Show':'Hide'} deal tiers">${col?'▾':'▴'}</button></div>`+(col?'':cells.join(''));
-  if(el2.innerHTML!==html)el2.innerHTML=html}
+  setHTML(el2,html)}
+// only touch the DOM when the content really changed, and keep pulsing switches in phase so they don't jump
+function setHTML(node,html){if(node._h===html)return;node._h=html;node.innerHTML=html;const d=-(performance.now()%1600)/1000+'s';node.querySelectorAll('.tgl.is-off').forEach(x=>x.style.animationDelay=d)}
 function buildHire(){
   const box=$('#tab-hire');box.innerHTML=`<div class="card"><h2>Deal pipeline</h2>
-    <div class="tiers-tbl num" id="tierTbl"></div>
+    <div class="tiers-tbl num" id="tierTbl"></div><div id="contractBox"></div>
     <div class="bar" style="margin-top:8px"><i id="pBar"></i></div><p id="pTxt" style="margin-top:8px"></p><div id="owBox" hidden><p id="owTxt" style="margin:6px 0 4px"></p><div class="bar"><i id="owBar"></i></div></div></div>`;
   $('#tierTbl').addEventListener('click',e=>{const tg=e.target.closest('.tgl');if(tg)toggleTier(Number(tg.dataset.t))});
   for(const d of DEPTS){
@@ -690,7 +717,9 @@ function updateHire(){
     const off=tierOff(t),wl=off?windLeft(t):0;
     const status=off&&pipelineOff()?'<span style="color:var(--amber)">Off. Switch on to start selling.</span>':off?(wl>=.5?`<span style="color:${short?'var(--red)':'var(--amber)'}">No new deals. ${Math.ceil(wl)} existing contract${Math.ceil(wl)>1?'s':''} still to deliver${short?': not enough qualified delivery, clients will walk':''}.</span>`:'<span class="lock">Paused. Sales sell smaller deals instead.</span>'):inn<=0?`<span class="lock">${why[t]||'—'}</span>`:short?`<span style="color:var(--red)">${bl>0.5?'Delay '+Math.round(dly)+'s · ':''}${whoDel[t]}</span>`:bl>0.5?`<span style="color:var(--amber)">Clearing backlog</span>`:'<span style="color:var(--mint)">On time</span>';
     return `<div class="trow2${inn<=0||(off&&wl<.5)?' dim':''}"><span class="tn2"><b>${T_.name} <button class="tgl${off?' is-off':''}" data-t="${t}" aria-pressed="${!off}" aria-label="${off?'Resume':'Pause'} ${T_.name}"><i></i></button></b><small>×${T_.val} value per effort</small></span><span class="tv">${inn>0?f1(inn/T_.effort)+'→'+f1(srv/T_.effort)+'/s':'—'}</span><span class="ts">${status}</span></div>`}).join('');
-  const tt=$('#tierTbl');if(tt.innerHTML!==rows)tt.innerHTML=rows;tt.classList.toggle('all-off',pipelineOff());
+  const tt=$('#tierTbl');setHTML(tt,rows);
+  {const cs=(S.contracts||[]),now=gtNow(),ch=cs.length?`<div class="contracts"><div class="thead">Signed clients</div>${cs.map(c=>{const pc=Math.round((1-c.left/c.units)*100),hl=c.due-now;return `<div class="ctr"><span class="cc-tag" style="background:${TIER_COL[c.t]}">${TIERS[c.t].short}</span><span class="cn">${c.name}</span><span class="cp2 num" style="color:${hl<1?'var(--red)':'var(--muted)'}">${pc}% · ${hl<1?Math.max(1,Math.round(hl/HPS))+'s':fmtH(hl)} left</span><span class="cb"><i style="width:${pc}%;background:${TIER_COL[c.t]}"></i></span></div>`}).join('')}</div>`:'';
+   const cb=$('#contractBox');if(cb.innerHTML!==ch)cb.innerHTML=ch}tt.classList.toggle('all-off',pipelineOff());
   const Din=sum(F.D),Sv=sum(F.served),pb=$('#pBar');pb.style.width=Math.min(100,Sv/Math.max(Din,.01)*100)+'%';pb.style.background=bn==='deliver'?'var(--red)':bn?'var(--amber)':'var(--mint)';
   const worst=TIERS.map((_,t)=>t).filter(t=>F.D[t]>0&&F.served[t]<F.D[t]*.9).pop();
   $('#pTxt').innerHTML=pipelineOff()?'<b style="color:var(--amber)">Your deal pipeline is switched off.</b> Nobody is selling, so nothing is earned except hustle taps. Switch on <b>Quick jobs</b> to start, then add bigger deal types once your team can deliver them.':(worst!==undefined?`<b style="color:var(--red)">${TIERS[worst].name} are piling up.</b> ${whoDel[worst]}. Clients who wait too long walk away.`
@@ -922,8 +951,8 @@ function updateOffice(){updateBuzz();
 function updateRepBar(){const el2=$('#repBar');if(!el2)return;const r=repOf(),f=repFactors(),v=valuation(),sh=ipoShares(),col=repColor(r);
   const fl=S.repFlash&&performance.now()-S.repFlash.at<4000?S.repFlash.x:0;
   const trend=f.target>r+1?'<span class="rd up">▲</span>':f.target<r-1?'<span class="rd dn">▼</span>':'';
-  const html=`<span class="rl">Reputation</span><span class="rb"><i style="width:${r}%;background:${col}"></i><span class="tg" style="left:calc(${f.target}% - 1px)"></span></span><span><b style="color:${col}">${Math.round(r)}</b> ${repLabel(r)} ${fl?`<span class="rd ${fl>0?'up':'dn'}">${fl>0?'+':'−'}${Math.abs(fl).toFixed(1)}</span>`:trend}</span><span class="rv">${S.over?'· Final value <b style="color:var(--amber)">'+fmt(S.over.value)+'</b>':`· Value <b>${fmt(v.value)}</b>${sh>S.shares&&!S.over?` <b style="color:var(--mint)">→ ${sh} share${sh>1?'s':''}</b>`:''}`}</span>`;
-  if(el2.innerHTML!==html)el2.innerHTML=html}
+  const html=`<span class="rl">Reputation</span><span class="rb"><i style="width:${Math.round(r)}%;background:${col}"></i><span class="tg" style="left:calc(${Math.round(f.target)}% - 1px)"></span></span><span><b style="color:${col}">${Math.round(r)}</b> ${repLabel(r)} ${fl?`<span class="rd ${fl>0?'up':'dn'}">${fl>0?'+':'−'}${Math.abs(fl).toFixed(1)}</span>`:trend}</span><span class="rv">${S.over?'· Final value <b style="color:var(--amber)">'+fmt(S.over.value)+'</b>':`· Value <b>${fmt(v.value)}</b>${sh>S.shares&&!S.over?` <b style="color:var(--mint)">→ ${sh} share${sh>1?'s':''}</b>`:''}`}</span>`;
+  setHTML(el2,html)}
 // ---------- rules screen ----------
 let rulesOpen=false;
 function rulesHTML(){const dm=Math.round(DAY_SECONDS/60*10)/10,runMin=Math.round(S.endDay*DAY_SECONDS/60),N=x=>`<span class="n">${x}</span>`;
@@ -952,6 +981,7 @@ function rulesHTML(){const dm=Math.round(DAY_SECONDS/60*10)/10,runMin=Math.round
     <tr><td>Strategic</td><td>Senior Sales + an Executive in a private office</td><td>Senior+ Engineering and an experienced Lawyer</td><td>×5</td></tr></table>
     <ul><li>Deals that wait too long make <b>clients walk away</b>, which costs reputation. Bigger deals cost more.</li>
     <li><b>Pausing</b> a deal type stops new sales only. Clients you already signed still need their work delivered: Quick jobs ${N('3 hours')}, Projects ${N('6 hours')}, Enterprise ${N('1 day')}, Strategic ${N('2 days')}. Deliver them all for ${N('+2')} reputation; losing one of them costs ${N('1.5×')} the usual hit.</li>
+    <li><b>Walk-in clients</b> pop up over the office, labelled with the deal type they want. Tap one to see the value, the work and whether your team can deliver it. <b>Accept</b> for a ${N('20%')} signing bonus plus payment as the work is delivered; signed clients are served first and each has a deadline (miss it and they walk, costing reputation; deliver on time for ${N('+0.5')}). <b>Decline</b> and reputation drops ${N('0.5')} (Quick) to ${N('2')} (Strategic); ignore them and it drops half that.</li>
     <li><b>Overwork:</b> if deals come in faster than the team delivers for ${N('2 days')}, the team burns out and morale drops until delivery catches up.</li></ul>`)}
   ${sec('👥','Staff and careers',`<ul><li>New hires start at ${N('60%')} output and become <b>experienced</b> after about ${N('4 minutes')} at a desk (half speed without one). <b>Onboarding</b> training does it in ${N('1 game hour')}.</li>
     <li>Only experienced staff can be <b>promoted</b>: Mid ×${N('1.25')}, Senior ×${N('1.5')}, Lead ×${N('1.8')} output, with higher pay. A Lead can move to the next department.</li>
@@ -1799,12 +1829,52 @@ scene.addEventListener('pointermove',e=>{if(!tool||onTown()){hoverTile=null;retu
 const endDrag=()=>{dragging=false;lastDragKey=null};
 scene.addEventListener('pointerup',endDrag);scene.addEventListener('pointercancel',endDrag);scene.addEventListener('pointerleave',()=>{hoverTile=null;endDrag()});
 
-function spawnClient(){if(staff()<3||document.querySelector('.client'))return;
-  const c=document.createElement('button');c.className='client';c.textContent='NEW CLIENT';
-  c.style.left=(20+Math.random()*(W-100))+'px';c.style.top=(TOP+10+Math.random()*(H-TOP-110))+'px';
-  const bonus=Math.max(50,totalRate()*30);
-  c.addEventListener('pointerdown',e=>{e.stopPropagation();earn(bonus);pop(parseFloat(c.style.left)+28,parseFloat(c.style.top),'+'+fmt(bonus));c.remove();toast('Client signed: '+fmt(bonus));renderAll()});
-  scene.appendChild(c);setTimeout(()=>c.remove(),7000)}
+// ---------- walk-in clients ----------
+const CLIENT_NAMES=[['Corner Bakery','Rosa\'s Florist','Ace Plumbing','Pixel Print Shop','Main St Dental','Blue Door Café'],
+  ['Harbor Clinics','Maple Realty','Bluefin Logistics','Juniper Schools','Copperleaf Hotels','Northwind Foods'],
+  ['Summit Bank','Atlas Motors','Redwood Insurance','Lumen Airlines','Crescent Retail Group','Granite Energy'],
+  ['Meridian Global','the City Council','Helios Telecom','Titan Industries','the National Health Trust','Oceanic Shipping']];
+const TIER_COL=['#5fd3a6','#6fa4ec','#b18cff','#f5c95a'];
+const WHO_DEL=['Anyone can deliver them.','Experienced Support or Engineering deliver them.','Mid+ Engineering plus an experienced Lawyer deliver them.','Senior+ Engineering plus an experienced Lawyer deliver them.'];
+const declineHit=t=>.5+.5*t;
+const fmtH=h=>h>=9?(Math.round(h/9*10)/10)+' day'+(h>=9.5?'s':''):Math.round(h*10)/10+' game hours'; // reputation cost of turning a client away
+let clientOffer=null;
+function pickClientTier(){const F=computeFlow();let top=0;for(let t=0;t<4;t++)if(F.cap.slice(t).some(c=>c>0))top=t;
+  // mostly work you can deliver, sometimes a bigger client than you're ready for
+  const opts=[];for(let t=0;t<=Math.min(3,top+1);t++)opts.push([t,t>top?.6:t===top?2:1.2]);
+  let r=Math.random()*opts.reduce((a,o)=>a+o[1],0);for(const [t,w] of opts){r-=w;if(r<=0)return t}return 0}
+function makeOffer(t){const val=TIERS[t].val*dealValue()*officeMult(),target=Math.max(60,totalRate()*30*(1+t*.4));
+  const units=Math.max(TIERS[t].effort,Math.round(target/Math.max(val,1e-6)/TIERS[t].effort)*TIERS[t].effort);
+  const F=computeFlow(),cap=F.cap.slice(t).reduce((a,c)=>a+c,0),spare=F.left.slice(t).reduce((a,c)=>a+c,0);
+  const secs=spare>0?units/spare:cap>0?units/cap:Infinity,dueH=Math.min(18,Math.max(3,(secs===Infinity?0:secs)*2.5*HPS));
+  const names=CLIENT_NAMES[t];return {t,units,value:units*val,upfront:units*val*.2,name:names[Math.floor(Math.random()*names.length)],can:cap>0,spare,secs,dueH}}
+function spawnClient(){if(staff()<3||document.querySelector('.client')||clientOffer||S.over||rulesOpen||document.hidden)return;
+  const t=pickClientTier(),o=makeOffer(t);
+  const c=document.createElement('button');c.className='client';c.style.background=TIER_COL[t];c.innerHTML='<small>NEW CLIENT</small>'+TIERS[t].short;c.setAttribute('aria-label','New client: '+TIERS[t].name);
+  c.style.left=(20+Math.random()*(W-110))+'px';c.style.top=(TOP+10+Math.random()*(H-TOP-110))+'px';
+  const bye=setTimeout(()=>{if(!c.isConnected)return;c.remove();const h=declineHit(t)/2;repHit(-h);logEvent(o.name+' wanted '+TIERS[t].name.toLowerCase().replace(/s$/,'')+' work but nobody answered. Reputation −'+h.toFixed(2).replace(/0$/,'')+'.',0);toast(o.name+' left: nobody answered ('+TIERS[t].short+'). Reputation −'+h.toFixed(2).replace(/0$/,''),'warn')},10000);
+  c.addEventListener('pointerdown',e=>{e.stopPropagation();clearTimeout(bye);c.remove();showClient(makeOffer(t),o.name)});
+  scene.appendChild(c)}
+function showClient(o,name){o.name=name||o.name;clientOffer=o;const T_=TIERS[o.t],box=$('#clientCard'),col=TIER_COL[o.t],off=tierOff(o.t);
+  const tm=o.secs===Infinity?'':o.secs<60?Math.max(1,Math.round(o.secs))+'s':Math.round(o.secs/60*10)/10+' min';
+  const status=!o.can?`<p class="cc-warn bad">Nobody on your team can deliver ${T_.name.toLowerCase()} yet. ${WHO_DEL[o.t]} If you accept, the work will sit and the client will walk away: reputation hit.</p>`
+    :o.spare<=0?`<p class="cc-warn">Your team is already at capacity for this kind of work. Accepting adds to the queue and may make other deals late.</p>`
+    :`<p class="cc-ok">Your team can take this on: about ${tm} of spare capacity. Signed clients are served before the regular queue.</p>`;
+  box.innerHTML=`<div class="hc-top"><span class="cc-tag" style="background:${col}">${T_.short}</span><b id="ccTitle">${o.name}</b><button class="hc-x" id="ccX" aria-label="Decide later">✕</button></div>
+    <p class="cc-sub">wants to sign <b>${o.t===2?'an':'a'} ${T_.name.toLowerCase().replace(/s$/,'').replace('quick job','quick job')}</b> with you${off?' (new '+T_.name.toLowerCase()+' are paused, but you can still take this one)':''}.</p>
+    <div class="ipo-grid num"><span>Deal type</span><b style="color:${col}">${T_.name} · ×${T_.val} value</b><span>Signing bonus now</span><b>${fmt(o.upfront)}</b><span>Paid as the work is delivered</span><b>${fmt(o.value)}</b><span>Deadline</span><b>${fmtH(o.dueH)}</b></div>
+    ${status}
+    <div class="hc-foot"><button class="buy ghost" id="ccNo">Decline · reputation −${declineHit(o.t)}</button><button class="buy" id="ccYes">Accept</button></div>`;
+  box.hidden=false;
+  $('#ccYes').addEventListener('click',()=>{S.contracts=S.contracts||[];S.contracts.push({t:o.t,name:o.name,units:o.units,left:o.units,value:o.value,due:gtNow()+o.dueH});earn(o.upfront);flowCache.t=-1;closeClient();
+    logEvent('Signed '+o.name+' ('+T_.name.toLowerCase()+', '+fmt(o.value)+' on delivery).',1);toast('Signed '+o.name+' ('+T_.name.toLowerCase().replace(/s$/,'')+'): '+fmt(o.upfront)+' now, '+fmt(o.value)+' on delivery within '+fmtH(o.dueH)+(o.can?'':'. Nobody can deliver it yet!'),o.can?undefined:'warn');renderAll();updateCapStrip()});
+  $('#ccNo').addEventListener('click',()=>{const h=declineHit(o.t);repHit(-h);closeClient();logEvent('Turned away '+o.name+' ('+T_.name.toLowerCase()+'). Reputation −'+h+'.',0);toast('Turned away '+o.name+'. Reputation −'+h,'warn');renderAll()});
+  $('#ccX').addEventListener('click',()=>{closeClient();toast(o.name+' will wait a moment');setTimeout(()=>spawnBack(o),800)})}
+function spawnBack(o){if(document.querySelector('.client')||S.over)return;const c=document.createElement('button');c.className='client';c.style.background=TIER_COL[o.t];c.innerHTML='<small>NEW CLIENT</small>'+TIERS[o.t].short;
+  c.style.left=(20+Math.random()*(W-110))+'px';c.style.top=(TOP+10+Math.random()*(H-TOP-110))+'px';
+  const bye=setTimeout(()=>{if(!c.isConnected)return;c.remove();const h=declineHit(o.t)/2;repHit(-h);toast(o.name+' left: nobody answered. Reputation −'+h.toFixed(2).replace(/0$/,''),'warn')},10000);
+  c.addEventListener('pointerdown',e=>{e.stopPropagation();clearTimeout(bye);c.remove();showClient(makeOffer(o.t),o.name)});scene.appendChild(c)}
+function closeClient(){clientOffer=null;$('#clientCard').hidden=true}
 setInterval(()=>{if(Math.random()<Math.min(0.9,0.3+count(byId('mkt'))*0.03))spawnClient()},20000);
 
 // ---------- personal satisfaction ----------
